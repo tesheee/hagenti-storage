@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from "react";
 import { Search, Filter, ChevronDown, Package, Edit, X } from "lucide-react";
 import { EditCartridgeModal } from "./EditCartridgeModal";
+import { Cartridge } from "@/types/product";
 
 // ---------- Типы ----------
 type CartridgeStatus =
@@ -10,21 +11,6 @@ type CartridgeStatus =
   | "На заправке"
   | "Ожидает заправки"
   | "Списан";
-
-interface Cartridge {
-  id: number | string;
-  inventoryId: string;
-  manufacturer?: string;
-  sku?: string;
-  serial?: string;
-  status: CartridgeStatus;
-  location?: string;
-  quantity: number;
-  receivedAt?: string;
-  printerModels: string[];
-  tonerColor: "черный" | "желтый" | "голубой" | "красный";
-  model: string;
-}
 
 interface CartridgeTableProps {
   cartridges: Cartridge[];
