@@ -23,7 +23,10 @@ export function EditCartridgeModal({
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field: keyof typeof formData, value: any) => {
+  const handleChange = <K extends keyof typeof formData>(
+    field: K,
+    value: (typeof formData)[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -53,7 +56,9 @@ export function EditCartridgeModal({
             <label className="text-gray-400 text-sm">Статус</label>
             <select
               value={formData.status}
-              onChange={(e) => handleChange("status", e.target.value)}
+              onChange={(e) =>
+                handleChange("status", e.target.value as Cartridge["status"])
+              }
               className="w-full mt-1 px-3 py-2 rounded-md border text-white text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
               style={{ backgroundColor: "#1a1d20", borderColor: "#2d3237" }}
             >

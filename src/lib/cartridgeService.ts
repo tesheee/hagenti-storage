@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
 import { connectDB } from "@/lib/db";
-import { Cartridge } from "@/types/product";
+import { Cartridge, CartridgeDTO } from "@/models/cartridge";
 
 // Получить все
-export const getAllCartridges = async (): Promise<Cartridge[]> => {
+export const getAllCartridges = async (): Promise<CartridgeDTO[]> => {
   const db = await connectDB();
   const cartridges = await db
     .collection<Cartridge>("cartridges")

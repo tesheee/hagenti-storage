@@ -3,7 +3,6 @@
 import Sidebar from "@/components/layout/Sidebar";
 import CartridgeTable from "@/components/ui/CartridgeTable";
 import type { Cartridge } from "@/types/product";
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const fetchCartridges = async (): Promise<Cartridge[]> => {

@@ -18,3 +18,5 @@ export interface Cartridge {
   quantity: number;
   receivedAt?: string;
 }
+
+export type CartridgeDTO = Omit<Cartridge, "_id"> & { _id: string };
