@@ -189,6 +189,7 @@ export default function CartridgeTable({
       </div>
 
       {/* Table */}
+      {/* Desktop Table */}
       <div
         className="hidden lg:block rounded-xl overflow-hidden border"
         style={{ borderColor: "#2d3237" }}
@@ -204,7 +205,7 @@ export default function CartridgeTable({
             <tr>
               {[
                 "Модель",
-                "Инв. номер",
+                "Інв. номер",
                 "Цвет",
                 "Статус",
                 "Количество",
@@ -291,6 +292,110 @@ export default function CartridgeTable({
             className="text-center py-12 text-gray-400"
             style={{ backgroundColor: "#212529" }}
           >
+            <Package className="w-12 h-12 mx-auto mb-3 text-gray-500" />
+            <p>Картриджи не найдены</p>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="lg:hidden space-y-3">
+        {filteredCartridges.map((cartridge) => (
+          <div
+            key={cartridge.id}
+            className="rounded-lg border p-4"
+            style={{
+              backgroundColor: "#1a1d20",
+              borderColor: "#2d3237",
+            }}
+          >
+            {/* Header */}
+            <div
+              className="flex items-start justify-between mb-3 pb-3"
+              style={{ borderBottom: "1px solid #2d3237" }}
+            >
+              <div
+                className="flex-1 cursor-pointer"
+                onClick={() => onCartridgeClick?.(cartridge)}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Package className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-white">
+                    {cartridge.model}
+                  </h3>
+                </div>
+                <p className="text-xs text-gray-400 ml-6">
+                  {cartridge.manufacturer}
+                </p>
+              </div>
+              <button
+                onClick={() => openModal(cartridge)}
+                className="p-2 text-gray-400 hover:text-white transition-colors flex-shrink-0"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Info Grid */}
+            <div className="space-y-2">
+              {/* Inventory ID */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Інв. номер:</span>
+                <span className="text-xs text-gray-200">
+                  {cartridge.inventoryId}
+                </span>
+              </div>
+
+              {/* Color */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Цвет:</span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-3 h-3 rounded-full ${
+                      tonerColors[cartridge.tonerColor]
+                    }`}
+                  />
+                  <span className="text-xs text-gray-200">
+                    {cartridge.tonerColor}
+                  </span>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Статус:</span>
+                <span
+                  className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    statusColors[cartridge.status]
+                  }`}
+                >
+                  {cartridge.status}
+                </span>
+              </div>
+
+              {/* Quantity */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400">Количество:</span>
+                <span className="text-xs text-gray-200">
+                  {cartridge.quantity}
+                </span>
+              </div>
+
+              {/* Location */}
+              {cartridge.location && (
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Расположение:</span>
+                  <span className="text-xs text-gray-200">
+                    {cartridge.location}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {filteredCartridges.length === 0 && (
+          <div className="text-center py-12 text-gray-400">
             <Package className="w-12 h-12 mx-auto mb-3 text-gray-500" />
             <p>Картриджи не найдены</p>
           </div>
