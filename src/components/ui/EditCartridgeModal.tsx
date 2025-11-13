@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Check } from "lucide-react";
-import { Cartridge } from "@/types/product";
+import { useState } from "react";
+import { X } from "lucide-react";
+import { Cartridge } from "@/shared/types/product";
 
 interface EditCartridgeModalProps {
   cartridge: Cartridge;
@@ -29,6 +29,8 @@ export function EditCartridgeModal({
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  console.log(cartridge._id);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -74,18 +76,6 @@ export function EditCartridgeModal({
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className="text-gray-400 text-sm">Количество</label>
-            <input
-              type="number"
-              min="0"
-              value={formData.quantity}
-              onChange={(e) => handleChange("quantity", Number(e.target.value))}
-              className="w-full mt-1 px-3 py-2 rounded-md border text-white text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
-              style={{ backgroundColor: "#1a1d20", borderColor: "#2d3237" }}
-            />
           </div>
 
           <div>

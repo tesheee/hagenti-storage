@@ -6,7 +6,7 @@ export interface Product {
   serial?: string;
   status: string;
   location?: string;
-  quantity: number;
+  quantity?: number;
   receivedAt?: string; // ISO
 }
 

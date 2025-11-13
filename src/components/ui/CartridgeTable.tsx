@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { Search, Filter, ChevronDown, Package, Edit, X } from "lucide-react";
+import { Search, Filter, ChevronDown, Package, Edit, Plus } from "lucide-react";
+import { Cartridge } from "@/shared/types/product";
 import { EditCartridgeModal } from "./EditCartridgeModal";
-import { Cartridge } from "@/types/product";
+import AddCartridgeModal, { CartridgeFormData } from "./AddCartridgeModal";
 
 // ---------- Типы ----------
 type CartridgeStatus =
@@ -15,6 +16,7 @@ type CartridgeStatus =
 interface CartridgeTableProps {
   cartridges: Cartridge[];
   onCartridgeClick?: (cartridge: Cartridge) => void;
+  onCartridgeCreate: (cartridge: CartridgeFormData) => void;
   onCartridgeUpdate?: (id: string, updateData: Partial<Cartridge>) => void;
 }
 
@@ -22,6 +24,7 @@ export default function CartridgeTable({
   cartridges: initialCartridges,
   onCartridgeClick,
   onCartridgeUpdate,
+  onCartridgeCreate,
 }: CartridgeTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<CartridgeStatus | "all">(
@@ -31,7 +34,8 @@ export default function CartridgeTable({
   const [selectedCartridge, setSelectedCartridge] = useState<Cartridge | null>(
     null
   );
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const cartridges = Array.isArray(initialCartridges) ? initialCartridges : [];
 
@@ -74,7 +78,7 @@ export default function CartridgeTable({
 
     const query = searchQuery.toLowerCase().trim();
 
-    return cartridges.filter((cartridge) => {
+    const result = cartridges.filter((cartridge) => {
       const matchesSearch =
         cartridge.model.toLowerCase().includes(query) ||
         cartridge.inventoryId.toLowerCase().includes(query) ||
@@ -87,17 +91,33 @@ export default function CartridgeTable({
 
       return matchesSearch && matchesStatus;
     });
+
+    // 🔽 Порядок сортировки статусов
+    const statusOrder: Record<string, number> = {
+      Склад: 1,
+      "В использовании": 2,
+      "Ожидает заправки": 3,
+      "На заправке": 4,
+      Списан: 5,
+    };
+
+    // 🔽 Сортировка по статусу
+    result.sort((a, b) => {
+      return statusOrder[a.status] - statusOrder[b.status];
+    });
+
+    return result;
   }, [cartridges, searchQuery, statusFilter]);
 
   const openModal = (cartridge: Cartridge) => {
     console.log(cartridge);
     setSelectedCartridge(cartridge);
-    setIsModalOpen(true);
+    setIsEditOpen(true);
   };
 
   const closeModal = () => {
     setSelectedCartridge(null);
-    setIsModalOpen(false);
+    setIsEditOpen(false);
   };
 
   return (
@@ -106,9 +126,30 @@ export default function CartridgeTable({
       style={{ backgroundColor: "#212529" }}
     >
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Картриджи</h2>
-        <p className="text-gray-400">Всего: {filteredCartridges.length}</p>
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">Картриджи</h2>
+          <p className="text-gray-400">Всего: {filteredCartridges.length}</p>
+        </div>
+
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          className="p-1.5 mr-8 h-10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{
+            backgroundColor: "#1a1d20",
+            border: "1px solid #2d3237",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(87, 215, 91, 0.15)";
+            e.currentTarget.style.borderColor = "#57d75b";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#1a1d20";
+            e.currentTarget.style.borderColor = "#2d3237";
+          }}
+        >
+          <Plus className="text-gray-500" />
+        </button>
       </div>
 
       {/* Search and Filters */}
@@ -205,10 +246,10 @@ export default function CartridgeTable({
             <tr>
               {[
                 "Модель",
-                "Інв. номер",
+                "Инв. номер",
                 "Цвет",
                 "Статус",
-                "Количество",
+                "Совместимость",
                 "Расположение",
                 "Действия",
               ].map((header) => (
@@ -222,9 +263,9 @@ export default function CartridgeTable({
             </tr>
           </thead>
           <tbody>
-            {filteredCartridges.map((cartridge) => (
+            {filteredCartridges.map((cartridge, key) => (
               <tr
-                key={cartridge.id}
+                key={key}
                 className="transition-all hover:bg-[#1a1d20]"
                 style={{ borderBottom: "1px solid #2d3237" }}
               >
@@ -269,7 +310,9 @@ export default function CartridgeTable({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-300">
-                  {cartridge.quantity}
+                  {cartridge.printerModels.map((model, id) => (
+                    <p key={id}>{model}</p>
+                  ))}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-400">
                   {cartridge.location || "—"}
@@ -300,9 +343,9 @@ export default function CartridgeTable({
 
       {/* Mobile Cards */}
       <div className="lg:hidden space-y-3">
-        {filteredCartridges.map((cartridge) => (
+        {filteredCartridges.map((cartridge, key) => (
           <div
-            key={cartridge.id}
+            key={key}
             className="rounded-lg border p-4"
             style={{
               backgroundColor: "#1a1d20",
@@ -319,7 +362,7 @@ export default function CartridgeTable({
                 onClick={() => onCartridgeClick?.(cartridge)}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Package className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <Package className="w-4 h-4 text-gray-500 shrink-0" />
                   <h3 className="text-sm font-semibold text-white">
                     {cartridge.model}
                   </h3>
@@ -330,7 +373,7 @@ export default function CartridgeTable({
               </div>
               <button
                 onClick={() => openModal(cartridge)}
-                className="p-2 text-gray-400 hover:text-white transition-colors flex-shrink-0"
+                className="p-2 text-gray-400 hover:text-white transition-colors shrink-0"
               >
                 <Edit className="w-4 h-4" />
               </button>
@@ -340,7 +383,7 @@ export default function CartridgeTable({
             <div className="space-y-2">
               {/* Inventory ID */}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Інв. номер:</span>
+                <span className="text-xs text-gray-400">Инв. номер:</span>
                 <span className="text-xs text-gray-200">
                   {cartridge.inventoryId}
                 </span>
@@ -375,9 +418,11 @@ export default function CartridgeTable({
 
               {/* Quantity */}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Количество:</span>
+                <span className="text-xs text-gray-400">Совместимость:</span>
                 <span className="text-xs text-gray-200">
-                  {cartridge.quantity}
+                  {cartridge.printerModels.map((model, id) => (
+                    <p key={id}>{model}</p>
+                  ))}
                 </span>
               </div>
 
@@ -402,8 +447,17 @@ export default function CartridgeTable({
         )}
       </div>
 
-      {/* ---------- Модальное окно ---------- */}
-      {isModalOpen && selectedCartridge && (
+      {/* ---------- Модальное окно создания ---------- */}
+      {isCreateOpen && (
+        <AddCartridgeModal
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+          onSave={onCartridgeCreate}
+        />
+      )}
+
+      {/* ---------- Модальное окно редактирования ---------- */}
+      {isEditOpen && selectedCartridge && (
         <EditCartridgeModal
           cartridge={selectedCartridge}
           onClose={closeModal}

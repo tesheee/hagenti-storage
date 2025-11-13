@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { Cartridge } from "@/models/cartridge";
 
 type CartridgeStatus =
   | "Склад"
@@ -9,18 +10,14 @@ type CartridgeStatus =
   | "Списан";
 type TonerColor = "черный" | "желтый" | "голубой" | "красный";
 
-interface CartridgeFormData {
-  inventoryId: string;
-  manufacturer: string;
-  sku: string;
-  serial: string;
-  status: CartridgeStatus;
-  location: string;
-  quantity: number;
-  printerModels: string;
-  tonerColor: TonerColor;
-  model: string;
-}
+export type CartridgeFormData = Omit<
+  Cartridge,
+  "_id" | "user" | "printerModels"
+> & {
+  printerModels: string; // вводим как строку в input
+  sku?: string;
+  serial?: string;
+};
 
 interface AddCartridgeModalProps {
   isOpen: boolean;
@@ -40,7 +37,6 @@ export default function AddCartridgeModal({
     serial: "",
     status: "Склад",
     location: "",
-    quantity: 1,
     printerModels: "",
     tonerColor: "черный",
     model: "",
@@ -86,9 +82,6 @@ export default function AddCartridgeModal({
     if (!formData.model.trim()) {
       newErrors.model = "Модель обязательна";
     }
-    if (formData.quantity < 1) {
-      newErrors.quantity = "Количество должно быть больше 0";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -97,10 +90,19 @@ export default function AddCartridgeModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      onSave(formData);
+      onSave({
+        ...formData,
+        printerModels: formatStringToArray(formData.printerModels),
+      });
       handleClose();
     }
   };
+
+  const formatStringToArray = (string) => {
+    return string.split(", ");
+  };
+
+  console.log(formatStringToArray(formData.printerModels));
 
   const handleClose = () => {
     setFormData({
@@ -110,7 +112,6 @@ export default function AddCartridgeModal({
       serial: "",
       status: "Склад",
       location: "",
-      quantity: 1,
       printerModels: "",
       tonerColor: "черный",
       model: "",
@@ -264,32 +265,6 @@ export default function AddCartridgeModal({
                     }}
                     placeholder="SN-789012"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">
-                    Количество <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.quantity}
-                    onChange={(e) =>
-                      handleChange("quantity", parseInt(e.target.value) || 1)
-                    }
-                    className="w-full px-3 py-2 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-                    style={{
-                      backgroundColor: "#1a1d20",
-                      border: errors.quantity
-                        ? "1px solid #ef4444"
-                        : "1px solid #2d3237",
-                    }}
-                  />
-                  {errors.quantity && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.quantity}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>

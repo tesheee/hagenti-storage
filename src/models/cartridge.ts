@@ -9,14 +9,15 @@ export type CartridgeStatus =
 
 export interface Cartridge {
   _id?: ObjectId;
+  user: ObjectId;
   inventoryId: string;
   manufacturer?: string;
   model: string;
   tonerColor: "черный" | "желтый" | "голубой" | "красный";
   printerModels: string[];
   status: CartridgeStatus;
-  quantity: number;
   receivedAt?: string;
+  location?: string;
 }
 
 export type CartridgeDTO = Omit<Cartridge, "_id"> & { _id: string };

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 //import "@/styles/reset.css";
 import "@/styles/globals.css";
 import { Providers } from "@/app/providers";
+import Sidebar from "@/components/layout/Sidebar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +17,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Providers>
-        <body>{children}</body>
+        <body>
+          <div
+            className="flex h-screen"
+            style={{
+              backgroundColor: "#212529", // Основной фон
+            }}
+          >
+            <Sidebar activeItem="cartridges" />
+            <main className="flex-1 overflow-auto">
+              <body>{children}</body>
+            </main>
+          </div>
+        </body>
       </Providers>
     </html>
   );
