@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  Menu,
   Package,
   Home,
   Settings,
@@ -24,7 +23,6 @@ interface SidebarProps {
 
 export default function Sidebar({ badges = {} }: SidebarProps) {
   const pathname = usePathname();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [isWarehouseOpen, setIsWarehouseOpen] = useState(false);
@@ -64,7 +62,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
     { id: "settings", label: "Настройки", icon: Settings, url: "settings" },
   ];
 
-  const handleItemClick = (item, id) => {
+  const handleItemClick = (item) => {
     if (item.submenu !== undefined) {
       setIsWarehouseOpen((prev) => !prev);
     } else {
@@ -79,33 +77,8 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile menu toggle button - visible only on mobile */}
-      {!isMobileOpen && (
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="lg:hidden fixed top-4 right-4 z-40 p-2 rounded-lg shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
-          style={{
-            backgroundColor: "#1a1d20",
-            border: "1px solid #2d3237",
-          }}
-        >
-          <div className="relative">
-            <Menu className="w-6 h-6 text-gray-300" />
-            {Object.values(badges).some((v) => v > 0) && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-            )}
-          </div>
-        </button>
-      )}
-
       {/* Mobile Menu Component */}
-      <MobileMenu
-        isOpen={isMobileOpen}
-        onClose={() => setIsMobileOpen(false)}
-        activeItem={activeItem}
-        //onItemClick={}
-        badges={badges}
-      />
+      <MobileMenu activeItem={activeItem} badges={badges} />
 
       {/* Desktop Sidebar */}
       <aside
@@ -171,7 +144,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                 <div key={item.id}>
                   {/* Main menu item */}
                   <button
-                    onClick={() => handleItemClick(item, item.id)}
+                    onClick={() => handleItemClick(item)}
                     className={`
                       w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg
                       transition-all duration-200 font-medium relative
@@ -215,7 +188,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                       }`}
                     >
                       <Icon
-                        className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${
+                        className={`w-4 h-4 shrink-0 transition-transform duration-200 ${
                           isActive ? "scale-110" : ""
                         }`}
                         style={{
@@ -247,7 +220,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                     {badge > 0 && (
                       <span
                         className={`
-                          flex-shrink-0 flex items-center justify-center
+                          shrink-0 flex items-center justify-center
                           text-xs font-bold rounded-full min-w-[18px] h-4 px-1.5
                           transition-all duration-200
                           ${
@@ -257,7 +230,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                           }
                           ${
                             isDesktopCollapsed
-                              ? "absolute top-0.5 right-0.5 min-w-[14px] h-3.5 text-[9px]"
+                              ? "absolute top-0.5 right-0.5 min-w-5 h-3.5 text-[9px]"
                               : ""
                           }
                         `}
@@ -280,9 +253,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                           return (
                             <button
                               key={subitem.id}
-                              onClick={() =>
-                                handleItemClick(subitem, subitem.id)
-                              }
+                              onClick={() => handleItemClick(subitem)}
                               className={`
             w-full flex items-center gap-2 px-3 py-2 rounded-lg
             transition-all duration-200 text-sm font-medium
@@ -301,7 +272,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                               ></span>
 
                               <SubIcon
-                                className="w-3.5 h-3.5 flex-shrink-0"
+                                className="w-3.5 h-3.5 shrink-0"
                                 style={{
                                   color: isSubActive
                                     ? "#57d75b"
@@ -317,7 +288,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                                 <span
                                   className={`
                 flex items-center justify-center
-                text-[10px] font-bold rounded-full min-w-[16px] h-3.5 px-1
+                text-[10px] font-bold rounded-full min-w-4 h-3.5 px-1
                 ${
                   isSubActive
                     ? "bg-white text-green-600"

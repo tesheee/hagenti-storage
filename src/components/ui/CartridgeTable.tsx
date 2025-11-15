@@ -134,7 +134,7 @@ export default function CartridgeTable({
 
         <button
           onClick={() => setIsCreateOpen(true)}
-          className="p-1.5 mr-8 h-10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          className="hidden lg:block p-1.5 mr-8 h-10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
           style={{
             backgroundColor: "#1a1d20",
             border: "1px solid #2d3237",

@@ -11,19 +11,17 @@ import {
   Workflow,
   ChevronDown,
   Printer,
+  Menu,
+  Plus,
 } from "lucide-react";
 
 interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
   activeItem?: string;
   onItemClick?: (item: string) => void;
   badges?: Record<string, number>;
 }
 
 export default function MobileMenu({
-  isOpen,
-  onClose,
   activeItem = "cartridges",
   onItemClick,
   badges = {},
@@ -31,6 +29,7 @@ export default function MobileMenu({
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isWarehouseOpen, setIsWarehouseOpen] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
     { id: "home", label: "Главная", icon: Home },
@@ -54,7 +53,7 @@ export default function MobileMenu({
       setIsWarehouseOpen(!isWarehouseOpen);
     } else {
       onItemClick?.(id);
-      onClose();
+      setIsMobileOpen(false);
     }
   };
 
@@ -74,7 +73,7 @@ export default function MobileMenu({
   const handleTouchEnd = () => {
     if (touchEnd - touchStart > 75) {
       // Swipe right
-      onClose();
+      setIsMobileOpen(false);
     }
     setTouchStart(0);
     setTouchEnd(0);
@@ -83,18 +82,18 @@ export default function MobileMenu({
   // Close menu on escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
+      if (e.key === "Escape" && isMobileOpen) {
+        setIsMobileOpen(false);
       }
     };
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
+  }, [isMobileOpen, setIsMobileOpen]);
 
   // Prevent body scroll when menu is open
   useEffect(() => {
-    if (isOpen) {
+    if (isMobileOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -102,18 +101,67 @@ export default function MobileMenu({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isMobileOpen]);
 
   return (
     <>
+      {/* Mobile controls - visible only on mobile */}
+      <div
+        className="lg:hidden fixed top-4 right-4 z-40 flex gap-2 p-2 rounded-lg shadow-lg"
+        style={{
+          backgroundColor: "#1a1d20",
+          border: "1px solid #2d3237",
+        }}
+      >
+        {/* Create button */}
+        <button
+          onClick={() => true}
+          className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+          style={{
+            backgroundColor: "transparent",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(87, 215, 91, 0.15)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          <Plus className="w-5 h-5 text-gray-300" />
+        </button>
+
+        {/* Divider */}
+        <div className="w-px bg-[#2d3237]"></div>
+
+        {/* Menu button */}
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 relative"
+          style={{
+            backgroundColor: "transparent",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(87, 215, 91, 0.15)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
+        >
+          <Menu className="w-5 h-5 text-gray-300" />
+          {Object.values(badges).some((v) => v > 0) && (
+            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          )}
+        </button>
+      </div>
+
       {/* Overlay with animation */}
       <div
         className={`lg:hidden fixed inset-0 bg-black z-30 transition-all duration-300 ${
-          isOpen
+          isMobileOpen
             ? "opacity-80 backdrop-blur-sm pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
-        onClick={onClose}
+        onClick={() => setIsMobileOpen(true)}
       />
 
       {/* Mobile Menu - slides from right */}
@@ -125,12 +173,12 @@ export default function MobileMenu({
           lg:hidden fixed inset-y-0 right-0 z-40
           w-80 max-w-[85vw]
           transition-all duration-300 ease-out
-          ${isOpen ? "translate-x-0" : "translate-x-full"}
+          ${isMobileOpen ? "translate-x-0" : "translate-x-full"}
         `}
         style={{
           backgroundColor: "#212529",
           borderLeft: "1px solid #2d3237",
-          boxShadow: isOpen ? "-4px 0 24px rgba(0, 0, 0, 0.4)" : "none",
+          boxShadow: isMobileOpen ? "-4px 0 24px rgba(0, 0, 0, 0.4)" : "none",
         }}
       >
         <div className="flex flex-col h-full">
@@ -141,7 +189,7 @@ export default function MobileMenu({
           >
             <h1 className="text-xl font-bold text-white">Меню</h1>
             <button
-              onClick={onClose}
+              onClick={() => setIsMobileOpen(false)}
               className="p-2 rounded-lg transition-all duration-300 hover:scale-110 active:scale-95"
               style={{
                 backgroundColor: "#1a1d20",
@@ -266,16 +314,17 @@ export default function MobileMenu({
                               transition-all duration-200 text-sm font-medium
                               ${
                                 isSubActive
-                                  ? "text-white bg-[#1a1d20]"
+                                  ? "text-white "
                                   : "text-gray-400 hover:text-white hover:bg-[#1a1d20]"
                               }
                             `}
-                            style={{
-                              borderLeft: isSubActive
-                                ? "2px solid #57d75b"
-                                : "2px solid transparent",
-                            }}
                           >
+                            {/* colored dot */}
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                isSubActive ? "bg-[#57d75b]" : "bg-gray-500"
+                              }`}
+                            ></span>
                             <SubIcon
                               className="w-4 h-4 flex-shrink-0"
                               style={{
@@ -319,7 +368,7 @@ export default function MobileMenu({
         </div>
 
         {/* Swipe indicator */}
-        {isOpen && (
+        {isMobileOpen && (
           <div className="absolute top-1/2 -left-4 transform -translate-y-1/2">
             <div className="flex flex-col gap-1 opacity-50">
               <ChevronRight className="w-6 h-6 text-gray-400 animate-pulse" />
