@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+html,
+body,
+:where(#__next) {
+  @apply min-h-screen bg-[#212529] text-gray-100;
+  margin: 0;
+  padding: 0;
+  /* Растягиваем под панели Safari */
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+/* Фикс для iOS Safari: убираем белые вспышки при скролле */
+body {
+  background-color: #212529;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Если используешь safe-area */
+@supports (padding: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
