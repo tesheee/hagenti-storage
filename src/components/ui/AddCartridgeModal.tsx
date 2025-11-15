@@ -123,7 +123,7 @@ export default function AddCartridgeModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-1000 overflow-y-auto">
       {/* Overlay */}
       <div
         className="fixed inset-0 bg-opacity-90 backdrop-blur-lg transition-opacity"
