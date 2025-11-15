@@ -1,85 +1,31 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Package,
-  Home,
-  Settings,
-  BarChart,
-  ChevronLeft,
-  ChevronRight,
-  Network,
-  ChevronDown,
-  Printer,
-} from "lucide-react";
-import MobileMenu from "./MobileMenu";
-import { usePathname, useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { menuItem } from "./Navigation";
 
 interface SidebarProps {
   activeItem?: string;
-  onItemClick?: (item: string) => void;
+  onItemClick: (item: menuItem) => void;
   badges?: Record<string, number>;
+  isWarehouseOpen: boolean;
+  menuItems: menuItem[];
 }
 
-export default function Sidebar({ badges = {} }: SidebarProps) {
-  const pathname = usePathname();
-
+export default function Sidebar({
+  badges = {},
+  activeItem,
+  onItemClick,
+  isWarehouseOpen,
+  menuItems,
+}: SidebarProps) {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
-  const [isWarehouseOpen, setIsWarehouseOpen] = useState(false);
-  const router = useRouter();
 
-  const getActiveItem = () => {
-    if (pathname === "/") return "home";
-    return pathname.slice(1).split("/")[0];
-  };
-
-  const [activeItem, setActiveItem] = useState(getActiveItem);
-
-  const menuItems = [
-    { id: "home", label: "Главная", icon: Home, url: "" },
-    {
-      id: "warehouse",
-      label: "Инвентарь",
-      icon: Package,
-      hasSubmenu: true,
-      submenu: [
-        {
-          id: "cartridges",
-          label: "Картриджи",
-          icon: Package,
-          url: "cartridges",
-        },
-        { id: "hardware", label: "Техника", icon: Printer, url: "hardware" },
-      ],
-    },
-    {
-      id: "network-map",
-      label: "Карта сети",
-      icon: Network,
-      url: "network-map",
-    },
-    { id: "reports", label: "Отчеты", icon: BarChart, url: "reports" },
-    { id: "settings", label: "Настройки", icon: Settings, url: "settings" },
-  ];
-
-  const handleItemClick = (item) => {
-    if (item.submenu !== undefined) {
-      setIsWarehouseOpen((prev) => !prev);
-    } else {
-      router.push(`/${item.url}`);
-      setActiveItem(item.id);
-    }
-  };
-
-  // Check if any submenu item is active
   const isWarehouseActive =
     activeItem === "cartridges" || activeItem === "hardware";
 
   return (
     <>
-      {/* Mobile Menu Component */}
-      <MobileMenu activeItem={activeItem} badges={badges} />
-
       {/* Desktop Sidebar */}
       <aside
         className="hidden lg:block fixed lg:static inset-y-0 left-0 z-40 transition-all duration-300 ease-out"
@@ -144,7 +90,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                 <div key={item.id}>
                   {/* Main menu item */}
                   <button
-                    onClick={() => handleItemClick(item)}
+                    onClick={() => onItemClick(item)}
                     className={`
                       w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg
                       transition-all duration-200 font-medium relative
@@ -253,7 +199,7 @@ export default function Sidebar({ badges = {} }: SidebarProps) {
                           return (
                             <button
                               key={subitem.id}
-                              onClick={() => handleItemClick(subitem)}
+                              onClick={() => onItemClick(subitem)}
                               className={`
             w-full flex items-center gap-2 px-3 py-2 rounded-lg
             transition-all duration-200 text-sm font-medium

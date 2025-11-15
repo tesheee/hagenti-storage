@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 //import "@/styles/reset.css";
 import "@/styles/globals.css";
 import { Providers } from "@/app/providers";
-import Sidebar from "@/components/layout/Sidebar";
+import Navigation from "@/components/layout/Navigation";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,23 +16,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <meta
-          name="theme-color"
-          media="(prefers-color-scheme: dark)"
-          content="#212529"
-        />
-        <meta
-          name="theme-color"
-          media="(prefers-color-scheme: light)"
-          content="#ffffff"
-        />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
-      </head>
       <Providers>
         <body>
           <div
@@ -41,7 +24,7 @@ export default function RootLayout({
               backgroundColor: "#212529", // Основной фон
             }}
           >
-            <Sidebar activeItem="cartridges" />
+            <Navigation />
             <main className="flex-1 overflow-auto">
               <body>{children}</body>
             </main>

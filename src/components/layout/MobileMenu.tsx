@@ -1,61 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Package,
-  Home,
-  Settings,
-  BarChart,
-  ChevronRight,
-  Workflow,
-  ChevronDown,
-  Printer,
-  Menu,
-  Plus,
-} from "lucide-react";
+import { X, ChevronRight, ChevronDown, Menu } from "lucide-react";
+import { menuItem, PageAction } from "./Navigation";
+import { usePageActions } from "@/components/layout/PageActionsContext";
 
 interface MobileMenuProps {
   activeItem?: string;
-  onItemClick?: (item: string) => void;
+  onItemClick: (item: menuItem) => void;
   badges?: Record<string, number>;
+  isWarehouseOpen: boolean;
+  menuItems: menuItem[];
+  actions?: PageAction[];
 }
 
 export default function MobileMenu({
   activeItem = "cartridges",
   onItemClick,
   badges = {},
+  isWarehouseOpen,
+  menuItems,
 }: MobileMenuProps) {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const [isWarehouseOpen, setIsWarehouseOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  const menuItems = [
-    { id: "home", label: "Главная", icon: Home },
-    {
-      id: "warehouse",
-      label: "Склад",
-      icon: Package,
-      hasSubmenu: true,
-      submenu: [
-        { id: "cartridges", label: "Картриджи", icon: Package },
-        { id: "hardware", label: "Техника", icon: Printer },
-      ],
-    },
-    { id: "networkMap", label: "Карта сети", icon: Workflow },
-    { id: "reports", label: "Отчеты", icon: BarChart },
-    { id: "settings", label: "Настройки", icon: Settings },
-  ];
-
-  const handleItemClick = (id: string) => {
-    if (id === "warehouse") {
-      setIsWarehouseOpen(!isWarehouseOpen);
-    } else {
-      onItemClick?.(id);
-      setIsMobileOpen(false);
-    }
-  };
+  const { actions } = usePageActions();
 
   // Check if any submenu item is active
   const isWarehouseActive =
@@ -103,32 +72,43 @@ export default function MobileMenu({
     };
   }, [isMobileOpen]);
 
+  const onMobileItemClick = (item: menuItem) => {
+    onItemClick(item);
+    if (!item.hasSubmenu) {
+      setIsMobileOpen(false);
+    }
+  };
+
   return (
     <>
       {/* Mobile controls - visible only on mobile */}
       <div
-        className="lg:hidden fixed top-4 right-4 z-40 flex gap-2 p-2 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 right-4 z-40 flex gap-2 p-2 duration-200 rounded-lg shadow-lg"
         style={{
           backgroundColor: "#1a1d20",
           border: "1px solid #2d3237",
         }}
       >
         {/* Create button */}
-        <button
-          onClick={() => true}
-          className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-          style={{
-            backgroundColor: "transparent",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(87, 215, 91, 0.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
-          }}
-        >
-          <Plus className="w-5 h-5 text-gray-300" />
-        </button>
+
+        {actions?.map((action, i) => (
+          <button
+            onClick={action.onClick}
+            key={i}
+            className="p-2 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
+            style={{
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "rgba(87, 215, 91, 0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+          >
+            <action.icon className="w-5 h-5 text-gray-300" />
+          </button>
+        ))}
 
         {/* Divider */}
         <div className="w-px bg-[#2d3237]"></div>
@@ -222,7 +202,7 @@ export default function MobileMenu({
                 <div key={item.id}>
                   {/* Main menu item */}
                   <button
-                    onClick={() => handleItemClick(item.id)}
+                    onClick={() => onMobileItemClick(item)}
                     className={`
                       w-full flex items-center gap-3 px-4 py-3 rounded-lg
                       transition-all duration-200 font-medium relative
@@ -282,8 +262,8 @@ export default function MobileMenu({
                     {badge > 0 && !item.hasSubmenu && (
                       <span
                         className={`
-                          flex-shrink-0 flex items-center justify-center
-                          text-xs font-bold rounded-full min-w-[20px] h-5 px-1.5
+                          shrink-0 flex items-center justify-center
+                          text-xs font-bold rounded-full min-w-5 h-5 px-1.5
                           transition-all duration-200
                           ${
                             isActive
@@ -308,7 +288,7 @@ export default function MobileMenu({
                         return (
                           <button
                             key={subitem.id}
-                            onClick={() => handleItemClick(subitem.id)}
+                            onClick={() => onMobileItemClick(subitem)}
                             className={`
                               w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg
                               transition-all duration-200 text-sm font-medium
@@ -326,7 +306,7 @@ export default function MobileMenu({
                               }`}
                             ></span>
                             <SubIcon
-                              className="w-4 h-4 flex-shrink-0"
+                              className="w-4 h-4 shrink-0"
                               style={{
                                 color: isSubActive ? "#57d75b" : "currentColor",
                               }}

@@ -4,6 +4,7 @@ import { Search, Filter, ChevronDown, Package, Edit, Plus } from "lucide-react";
 import { Cartridge } from "@/shared/types/product";
 import { EditCartridgeModal } from "./EditCartridgeModal";
 import AddCartridgeModal, { CartridgeFormData } from "./AddCartridgeModal";
+import { useRegisterPageActions } from "@/shared/hooks/useRegisterPageActions";
 
 // ---------- Типы ----------
 type CartridgeStatus =
@@ -38,6 +39,16 @@ export default function CartridgeTable({
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const cartridges = Array.isArray(initialCartridges) ? initialCartridges : [];
+
+  useRegisterPageActions([
+    {
+      label: "Добавить",
+      icon: Plus,
+      onClick: () => {
+        setIsCreateOpen(true);
+      },
+    },
+  ]);
 
   const statuses: (CartridgeStatus | "all")[] = [
     "all",
