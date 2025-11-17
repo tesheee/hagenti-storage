@@ -83,7 +83,7 @@ export default function MobileMenu({
     <>
       {/* Mobile controls - visible only on mobile */}
       <div
-        className="lg:hidden fixed top-4 right-4 z-40 flex gap-2 p-2 duration-200 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-4 right-4 z-40 flex gap-2 p-1.5 duration-200 rounded-lg shadow-lg"
         style={{
           backgroundColor: "#1a1d20",
           border: "1px solid #2d3237",
@@ -106,7 +106,7 @@ export default function MobileMenu({
               e.currentTarget.style.backgroundColor = "transparent";
             }}
           >
-            <action.icon className="w-5 h-5 text-gray-300" />
+            <action.icon className="w-4 h-4 text-gray-300" />
           </button>
         ))}
 
@@ -127,7 +127,7 @@ export default function MobileMenu({
             e.currentTarget.style.backgroundColor = "transparent";
           }}
         >
-          <Menu className="w-5 h-5 text-gray-300" />
+          <Menu className="w-4 h-4 text-gray-300" />
           {Object.values(badges).some((v) => v > 0) && (
             <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
           )}
