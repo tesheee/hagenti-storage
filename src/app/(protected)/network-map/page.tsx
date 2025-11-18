@@ -1,6 +1,6 @@
 "use client";
 
-import NetworkMap from "@/components/ui/NetworkMap";
+import NetworkMap from "@/app/(protected)/network-map/components/NetworkMap";
 import React from "react";
 
 const page = () => {

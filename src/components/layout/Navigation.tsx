@@ -13,6 +13,7 @@ import {
   Printer,
   LucideIcon,
 } from "lucide-react";
+import { useAuthStore } from "@/shared/store/authStore";
 
 export type menuItem = {
   id: string;
@@ -34,6 +35,7 @@ const Navigation = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isWarehouseOpen, setIsWarehouseOpen] = useState(false);
+  const { user } = useAuthStore();
 
   const menuItems: menuItem[] = [
     { id: "home", label: "Главная", icon: Home, url: "" },
@@ -85,12 +87,14 @@ const Navigation = () => {
         onItemClick={handleItemClick}
         isWarehouseOpen={isWarehouseOpen}
         menuItems={menuItems}
+        userData={user || {}}
       />
       <MobileMenu
         activeItem={activeItem}
         onItemClick={handleItemClick}
         isWarehouseOpen={isWarehouseOpen}
         menuItems={menuItems}
+        userData={user || {}}
       />
     </>
   );

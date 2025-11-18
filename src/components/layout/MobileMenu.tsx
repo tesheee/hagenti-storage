@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, ChevronRight, ChevronDown, Menu } from "lucide-react";
 import { menuItem, PageAction } from "./Navigation";
 import { usePageActions } from "@/components/layout/PageActionsContext";
+import { User } from "@/shared/models/user";
 
 interface MobileMenuProps {
   activeItem?: string;
@@ -12,6 +13,7 @@ interface MobileMenuProps {
   isWarehouseOpen: boolean;
   menuItems: menuItem[];
   actions?: PageAction[];
+  userData: Partial<User>;
 }
 
 export default function MobileMenu({
@@ -20,6 +22,7 @@ export default function MobileMenu({
   badges = {},
   isWarehouseOpen,
   menuItems,
+  userData,
 }: MobileMenuProps) {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);

@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { menuItem } from "./Navigation";
+import Image from "next/image";
+import { User } from "@/shared/models/user";
 
 interface SidebarProps {
   activeItem?: string;
@@ -10,6 +12,7 @@ interface SidebarProps {
   badges?: Record<string, number>;
   isWarehouseOpen: boolean;
   menuItems: menuItem[];
+  userData: Partial<User>;
 }
 
 export default function Sidebar({
@@ -18,6 +21,7 @@ export default function Sidebar({
   onItemClick,
   isWarehouseOpen,
   menuItems,
+  userData,
 }: SidebarProps) {
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
 
@@ -256,13 +260,37 @@ export default function Sidebar({
           </nav>
 
           {/* Footer */}
-          <div className="p-3 border-t" style={{ borderColor: "#2d3237" }}>
-            <div
-              className={`text-[10px] text-gray-500 transition-all duration-300 ${
-                isDesktopCollapsed ? "text-center" : ""
-              }`}
-            >
-              {isDesktopCollapsed ? "v1.0" : "Версия 1.0.0"}
+          <div>
+            <div className="p-3 border-t" style={{ borderColor: "#2d3237" }}>
+              <div
+                className={`text-[10px] text-gray-500 flex gap-3 transition-all duration-300 ${
+                  isDesktopCollapsed
+                    ? "flex-col items-center justify-center"
+                    : "items-center"
+                }`}
+              >
+                <Image
+                  src={""}
+                  alt="avatar"
+                  width={35}
+                  height={35}
+                  className="rounded-full shrink-0" // важно, чтобы картинка не сжималась
+                />
+
+                {/* Текст показываем только когда НЕ свернуто */}
+                {!isDesktopCollapsed && (
+                  <p className="truncate">{userData.name}</p>
+                )}
+              </div>
+            </div>
+            <div className="p-3 border-t" style={{ borderColor: "#2d3237" }}>
+              <div
+                className={`text-[10px] text-gray-500 transition-all duration-300 ${
+                  isDesktopCollapsed ? "text-center" : ""
+                }`}
+              >
+                {isDesktopCollapsed ? "v1.0" : "Версия 1.0.0"}
+              </div>
             </div>
           </div>
         </div>

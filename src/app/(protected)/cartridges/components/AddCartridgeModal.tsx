@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
-import { Cartridge } from "@/models/cartridge";
+import { Cartridge } from "@/shared/models/cartridge";
 
 type CartridgeStatus =
   | "Склад"

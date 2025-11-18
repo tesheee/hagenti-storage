@@ -1,6 +1,6 @@
 "use client";
 
-import CartridgeTable from "@/components/ui/CartridgeTable";
+import CartridgeTable from "@/app/(protected)/cartridges/components/CartridgeTable";
 import type { Cartridge } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
 
