@@ -7,10 +7,7 @@ interface SignUpFormProps {
   onSwitchToLogin?: () => void;
 }
 
-export default function SignUpForm({
-  onSwitchToLogin,
-  onAuth,
-}: SignUpFormProps) {
+export default function SignUpForm({ onSwitchToLogin }: SignUpFormProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -60,7 +57,6 @@ export default function SignUpForm({
 
       const data = await response.json();
       localStorage.setItem("token", data.token);
-      onAuth();
     } catch (err: any) {
       setError(err.message || "Ошибка регистрации");
     } finally {
