@@ -4,6 +4,7 @@ import React from "react";
 import { LogOut } from "lucide-react";
 import { useAuthStore } from "@/shared/store/authStore";
 import { useRouter } from "next/navigation";
+import { apiClient } from "@/lib/api/client";
 
 const page = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -11,7 +12,8 @@ const page = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
 
-  const onClickLogout = () => {
+  const onClickLogout = async () => {
+    await apiClient.post("auth/logout");
     logout();
     router.push("/auth");
   };

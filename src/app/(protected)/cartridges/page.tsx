@@ -3,19 +3,15 @@
 import CartridgeTable from "@/app/(protected)/cartridges/components/CartridgeTable";
 import type { Cartridge } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api/client";
+import { useAuthStore } from "@/shared/store/authStore";
 
 export default function CartridgesPage() {
-  const fetchCartridges = async (): Promise<Cartridge[]> => {
-    const res = await fetch("/api/cartridges", {
-      cache: "no-store", // Если нужно всегда свежие данные
-    });
-
-    if (!res.ok) {
-      throw new Error("Ошибка при загрузке картриджей");
-    }
-
-    return res.json();
+  const fetchCartridges = async () => {
+    const response = await apiClient.get("cartridges");
+    return response.data;
   };
+  const { user } = useAuthStore.getState();
 
   const {
     data: cartridges = [],
@@ -23,7 +19,7 @@ export default function CartridgesPage() {
     error,
     refetch, // Для обновления после мутации
   } = useQuery<Cartridge[], Error>({
-    queryKey: ["cartridges"],
+    queryKey: ["cartridges", user?.id],
     queryFn: fetchCartridges,
     staleTime: 60 * 1000, // 1 минута
     retry: 1,
@@ -34,17 +30,11 @@ export default function CartridgesPage() {
     updateData: Partial<Cartridge>
   ) => {
     try {
-      const response = await fetch("/api/cartridges", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, ...updateData }),
+      const response = await apiClient.patch("cartridges", {
+        id,
+        ...updateData,
       });
-
-      if (!response.ok) {
-        throw new Error("Не удалось обновить картридж");
-      }
-
-      // Обновляем кэш React Query
+      console.log(response);
       refetch();
     } catch (err) {
       console.error("Ошибка при обновлении:", err);
@@ -67,7 +57,6 @@ export default function CartridgesPage() {
       refetch();
     } catch (err) {
       console.error("Ошибка при обновлении:", err);
-      throw err; // Пробрасываем для UI-обработки
     }
   };
 

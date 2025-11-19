@@ -13,28 +13,13 @@ export function LayoutContent({ children }: LayoutContentProps) {
   const pathname = usePathname();
   const { user } = useAuthStore();
 
-  useEffect(() => {
-    useAuthStore.getState().init?.();
-  }, []);
+  useEffect(() => {}, []);
 
   // Публичные маршруты (без навигации)
   const publicRoutes = ["/auth", "/auth/login", "/auth/signup"];
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route)
   );
-
-  // Автоматический refresh токена
-  const { refresh } = useAuthStore();
-
-  useEffect(() => {
-    if (!user) return;
-
-    const interval = setInterval(() => {
-      refresh(); // ←
-    }, 14 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [user, refresh]);
 
   if (isPublicRoute) {
     return <>{children}</>;

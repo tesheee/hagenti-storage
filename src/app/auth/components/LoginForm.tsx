@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuthStore } from "@/shared/store/authStore";
+import { apiClient } from "@/lib/api/client";
 
 type loginProps = {
   onAuth: () => void;
@@ -13,7 +14,9 @@ const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
     email: "",
     password: "",
   });
-  const { login, loading, error } = useAuthStore();
+  const login = useAuthStore((state) => state.login);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -24,8 +27,25 @@ const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login({ ...formData });
-    onAuth();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await apiClient.post("auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      console.log(response.data);
+
+      login(response.data.user, response.data.accessToken);
+      onAuth();
+    } catch (err: any) {
+      console.log(err);
+      setError(err.response?.data?.error || "Ошибка авторизации");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

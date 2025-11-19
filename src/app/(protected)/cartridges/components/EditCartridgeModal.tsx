@@ -30,8 +30,6 @@ export function EditCartridgeModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  console.log(cartridge._id);
-
   const handleSubmit = async () => {
     setLoading(true);
     await onSave(cartridge._id, formData);

@@ -1,36 +1,34 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { login } from "@/lib/authService";
-import { cookies } from "next/headers";
 
-export async function POST(req: NextRequest) {
+console.log("LOGIN SECRET:", process.env.REFRESH_TOKEN_SECRET);
+
+export async function POST(request: NextRequest) {
   try {
-    const data = await req.json();
-    const result = await login(data);
+    const body = await request.json();
 
-    const cookieStore = await cookies();
+    // Вот и всё — один вызов, всё внутри
+    const { user, accessToken, refreshToken } = await login(body);
 
-    cookieStore.set("auth-token", result.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60, // 15 минут
-      path: "/",
+    const response = NextResponse.json({
+      user,
+      accessToken,
     });
 
-    if (result.refreshToken) {
-      cookieStore.set("refresh-token", result.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60, // 7 дней
-        path: "/",
-      });
-    }
+    // Устанавливаем refresh токен в HttpOnly куку
+    response.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 дней
+    });
 
-    return Response.json({ user: result.user });
+    return response;
   } catch (error: any) {
-    return Response.json(
-      { error: error.message || "Unauthorized" },
+    console.error("Login error:", error);
+    return NextResponse.json(
+      { error: error.message || "Неверный логин или пароль" },
       { status: 401 }
     );
   }

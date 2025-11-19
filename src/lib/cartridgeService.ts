@@ -3,13 +3,21 @@ import { connectDB } from "@/lib/db";
 import { Cartridge, CartridgeDTO } from "@/shared/models/cartridge";
 
 // Получить все
-export const getAllCartridges = async (): Promise<CartridgeDTO[]> => {
+export const getAllCartridges = async (
+  userId: string
+): Promise<CartridgeDTO[]> => {
   const db = await connectDB();
+
   const cartridges = await db
     .collection<Cartridge>("cartridges")
-    .find()
+    .find({ user: new ObjectId(userId) })
     .toArray();
-  return cartridges.map((c) => ({ ...c, _id: c._id?.toString() }));
+
+  return cartridges.map((c) => ({
+    ...c,
+    _id: c._id!.toString(),
+    user: c.user.toString(),
+  }));
 };
 
 // Добавить

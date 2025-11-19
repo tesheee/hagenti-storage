@@ -15,7 +15,7 @@ export default function AuthPage({ view, extra = [] }: AuthProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthStore();
-  const redirect = searchParams.get("redirect") || "/dashboard";
+  const redirect = searchParams.get("redirect") || "/";
 
   useEffect(() => {
     if (user) {

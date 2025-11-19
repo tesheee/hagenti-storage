@@ -6,22 +6,36 @@ import {
   updateCartridge,
 } from "@/lib/cartridgeService";
 
-export async function GET() {
+const getUserIdFromRequest = (req: Request) => {
+  return req.headers.get("x-user-id");
+};
+
+export async function GET(req: Request) {
+  const userId = getUserIdFromRequest(req);
+  if (!userId)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
-    const cartridges = await getAllCartridges();
+    const cartridges = await getAllCartridges(userId);
     return NextResponse.json(cartridges);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Ошибка при получении картриджей" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
+    const userId = getUserIdFromRequest(req);
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const data = await req.json();
-    await addCartridge(data);
+
+    await addCartridge({
+      ...data,
+      user: userId, // ← автоматом
+    });
+
     return NextResponse.json({ message: "Картридж добавлен" });
   } catch (error) {
     return NextResponse.json(
@@ -75,8 +89,11 @@ export async function PUT(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    const userId = getUserIdFromRequest(req);
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { id, ...updateData } = await req.json();
-    console.log(id, updateData);
 
     if (!id) {
       return NextResponse.json({ error: "Не указан ID" }, { status: 400 });

@@ -20,4 +20,15 @@ export interface Cartridge {
   location?: string;
 }
 
-export type CartridgeDTO = Omit<Cartridge, "_id"> & { _id: string };
+export interface CartridgeDTO {
+  _id: string;
+  user: string;
+  inventoryId: string;
+  manufacturer?: string;
+  model: string;
+  tonerColor: "черный" | "желтый" | "голубой" | "красный";
+  printerModels: string[];
+  status: CartridgeStatus;
+  receivedAt?: string;
+  location?: string;
+}

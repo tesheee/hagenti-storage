@@ -269,17 +269,17 @@ export default function Sidebar({
                     : "items-center"
                 }`}
               >
-                <Image
+                {/* <Image
                   src={""}
                   alt="avatar"
                   width={35}
                   height={35}
                   className="rounded-full shrink-0" // важно, чтобы картинка не сжималась
-                />
+                /> */}
 
                 {/* Текст показываем только когда НЕ свернуто */}
                 {!isDesktopCollapsed && (
-                  <p className="truncate">{userData.name}</p>
+                  <p className="truncate">{userData.username}</p>
                 )}
               </div>
             </div>

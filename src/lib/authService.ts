@@ -1,10 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { User } from "@/shared/models/user";
 import { hashPassword, verifyPassword } from "./auth";
-import jwt from "jsonwebtoken";
-
-const REFRESH_SECRET = process.env.REFRESH_SECRET || "super-secret-jwt";
-const ACCESS_SECRET = process.env.ACCESS_SECRET || "super-secret-jwt";
+import { createAccessToken, createRefreshToken } from "@/lib/auth/tokens";
 
 export const register = async (data: User) => {
   const db = await connectDB();
@@ -28,16 +25,14 @@ export const login = async (data: { email: string; password: string }) => {
   if (!valid) throw new Error("Неверный пароль");
 
   const safeUser = {
-    id: user._id.toString(),
+    userId: user._id.toString(),
     email: user.email,
     name: user.name,
     role: user.role,
   };
 
-  const accessToken = jwt.sign(safeUser, ACCESS_SECRET, { expiresIn: "15m" });
-  const refreshToken = jwt.sign({ id: user._id }, REFRESH_SECRET, {
-    expiresIn: "7d",
-  });
+  const accessToken = await createAccessToken(safeUser);
+  const refreshToken = await createRefreshToken(safeUser);
 
   await db
     .collection<User>("users")

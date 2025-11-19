@@ -1,172 +1,72 @@
-"use client";
-
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { getCookie } from "../utils/getCookie";
+import { devtools, persist } from "zustand/middleware";
 
 interface User {
   id: string;
   email: string;
-  name: string;
+  name?: string;
   role?: string;
 }
 
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  refreshToken: string | null;
-  loading: boolean;
-  error: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 
-  signup: (data: {
-    name: string;
-    email: string;
-    password: string;
-  }) => Promise<void>;
-  login: (data: { email: string; password: string }) => Promise<void>;
-  refresh: () => Promise<void>;
+  // Actions
+  setUser: (user: User | null) => void;
+  setAccessToken: (token: string | null) => void;
+  setLoading: (loading: boolean) => void;
   logout: () => void;
-  init: () => Promise<void>;
-  setError: (msg: string | null) => void;
+  login: (user: User, accessToken: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    devtools((set) => ({
       user: null,
       accessToken: null,
-      refreshToken: null,
-      loading: false,
-      error: null,
+      isAuthenticated: false,
+      isLoading: false,
 
-      // =========================================
-      // SIGN UP
-      // =========================================
-      signup: async (data) => {
-        set({ loading: true, error: null });
-        try {
-          const res = await fetch("/api/auth/signup", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          });
+      setUser: (user) =>
+        set({
+          user,
+          isAuthenticated: !!user,
+        }),
 
-          if (!res.ok) throw new Error("Ошибка регистрации");
+      setAccessToken: (token) => set({ accessToken: token }),
 
-          // сразу логиним после регистрации
-          const result = await res.json();
+      setLoading: (loading) => set({ isLoading: loading }),
 
-          set({
-            user: result.user,
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          });
-        } catch (err: any) {
-          set({ error: err.message });
-        } finally {
-          set({ loading: false });
-        }
-      },
+      login: (user, accessToken) =>
+        set({
+          user,
+          accessToken,
+          isAuthenticated: true,
+          isLoading: false,
+        }),
 
-      // =========================================
-      // LOGIN
-      // =========================================
-      login: async (data) => {
-        set({ loading: true, error: null });
-
-        try {
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          });
-
-          if (!res.ok) throw new Error("Неверный логин или пароль");
-
-          const result = await res.json();
-
-          set({
-            user: result.user,
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          });
-        } catch (err: any) {
-          set({ error: err.message });
-        } finally {
-          set({ loading: false });
-        }
-      },
-
-      // =========================================
-      // REFRESH TOKEN
-      // =========================================
-      refresh: async () => {
-        const token = get().refreshToken;
-        if (!token) return;
-
-        try {
-          const res = await fetch("/api/auth/refresh", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken: token }),
-          });
-
-          if (!res.ok) throw new Error("Refresh failed");
-
-          const data = await res.json();
-
-          set({
-            accessToken: data.accessToken,
-            ...(data.refreshToken && { refreshToken: data.refreshToken }),
-          });
-        } catch {
-          get().logout();
-        }
-      },
-
-      // =========================================
-      // LOGOUT
-      // =========================================
       logout: () =>
         set({
           user: null,
           accessToken: null,
-          refreshToken: null,
+          isAuthenticated: false,
+          isLoading: false,
         }),
-
-      init: async () => {
-        const token = getCookie("auth-token");
-        const refreshToken = getCookie("refresh-token");
-
-        if (token) {
-          try {
-            // Можно проверить валидность токена или просто декодировать
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            const userResponse = await fetch("/api/auth/me", {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (userResponse.ok) {
-              const user = await userResponse.json();
-              set({ user, accessToken: token, refreshToken });
-            }
-          } catch {
-            // Токен битый — чистим
-            get().logout();
-          }
-        }
-        set({ loading: false });
-      },
-
-      setError: (msg) => set({ error: msg }),
-    }),
+    })),
     {
       name: "auth-storage",
+      //Сохраняем только user, НЕ сохраняем accessToken в localStorage
       partialize: (state) => ({
         user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
       }),
     }
   )
 );
+
+export const useUser = () => useAuthStore((state) => state.user);
+export const useIsAuthenticated = () =>
+  useAuthStore((state) => state.isAuthenticated);
+export const useAccessToken = () => useAuthStore((state) => state.accessToken);
