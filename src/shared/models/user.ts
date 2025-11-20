@@ -1,14 +1,11 @@
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
-export interface User {
-  _id?: ObjectId;
-  username: string;
-  email: string;
-  profileImgUrl: string;
-  password: string;
-  refreshToken: string;
-}
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  username: { type: String },
+  profileImgUrl: { type: String },
+  refreshToken: { type: String },
+});
 
-export interface UserDTO extends User {
-  id: string;
-}
+export default mongoose.models.User || mongoose.model("User", userSchema);

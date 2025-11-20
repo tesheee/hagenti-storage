@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuthStore } from "@/shared/store/authStore";
-import { apiClient } from "@/lib/api/client";
+import axios from "axios";
 
 type loginProps = {
   onAuth: () => void;
@@ -14,7 +14,7 @@ const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
     email: "",
     password: "",
   });
-  const login = useAuthStore((state) => state.login);
+  const { login } = useAuthStore();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -31,17 +31,28 @@ const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
     setLoading(true);
 
     try {
-      const response = await apiClient.post("auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/login",
+        {
+          email: formData.email,
+          password: formData.password,
+        }
+      );
 
-      console.log(response.data);
+      const userResponse = await axios.get(
+        "http://localhost:3000/api/auth/me",
+        {
+          headers: {
+            Authorization: `Bearer ${response.data.accessToken}`,
+          },
+        }
+      );
 
-      login(response.data.user, response.data.accessToken);
+      console.log(userResponse);
+
+      login(userResponse.data, response.data.accessToken);
       onAuth();
     } catch (err: any) {
-      console.log(err);
       setError(err.response?.data?.error || "Ошибка авторизации");
     } finally {
       setLoading(false);

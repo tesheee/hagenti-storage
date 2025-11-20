@@ -3,12 +3,18 @@
 import CartridgeTable from "@/app/(protected)/cartridges/components/CartridgeTable";
 import type { Cartridge } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/shared/store/authStore";
+import axios from "axios";
 
 export default function CartridgesPage() {
-  const fetchCartridges = async () => {
-    const response = await apiClient.get("cartridges");
+  const { accessToken } = useAuthStore();
+
+  const fetchCartridges = async (): Promise<Cartridge[]> => {
+    const response = await axios.get("http://localhost:3000/api/cartridges", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     return response.data;
   };
   const { user } = useAuthStore.getState();
@@ -30,7 +36,7 @@ export default function CartridgesPage() {
     updateData: Partial<Cartridge>
   ) => {
     try {
-      const response = await apiClient.patch("cartridges", {
+      const response = await axios.patch("cartridges", {
         id,
         ...updateData,
       });

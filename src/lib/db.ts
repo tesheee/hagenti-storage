@@ -1,21 +1,9 @@
-import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-const uri = process.env.MONGODB_URI!;
-const client = new MongoClient(uri);
-let clientPromise: Promise<MongoClient>;
-
-console.log("Mongo URI:", process.env.MONGODB_URI);
-
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise;
-} else {
-  clientPromise = client.connect();
-}
+const MONGODB_URI = process.env.MONGODB_URI!;
 
 export const connectDB = async () => {
-  const mongo = await clientPromise;
-  return mongo.db();
+  if (mongoose.connections[0].readyState) return;
+  await mongoose.connect(MONGODB_URI);
+  console.log("MongoDB connected");
 };

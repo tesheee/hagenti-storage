@@ -58,10 +58,6 @@ export const useAuthStore = create<AuthState>()(
     })),
     {
       name: "auth-storage",
-      //Сохраняем только user, НЕ сохраняем accessToken в localStorage
-      partialize: (state) => ({
-        user: state.user,
-      }),
     }
   )
 );

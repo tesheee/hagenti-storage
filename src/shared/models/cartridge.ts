@@ -1,34 +1,65 @@
-import { ObjectId } from "mongodb";
+import mongoose, { Schema } from "mongoose";
 
-export type CartridgeStatus =
-  | "Склад"
-  | "В использовании"
-  | "Ожидает заправки"
-  | "На заправке"
-  | "Списан";
+const cartridgeSchema = new mongoose.Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // предполагаем, что у тебя есть модель User
+      required: true,
+    },
+    inventoryId: {
+      type: String,
+      required: true,
+      unique: true, // инвентарный номер должен быть уникальным
+      trim: true,
+    },
+    manufacturer: {
+      type: String,
+      trim: true,
+    },
+    model: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    tonerColor: {
+      type: String,
+      enum: ["черный", "желтый", "голубой", "красный"],
+      required: true,
+    },
+    printerModels: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    status: {
+      type: String,
+      enum: [
+        "Склад",
+        "В использовании",
+        "Ожидает заправки",
+        "На заправке",
+        "Списан",
+      ],
+      default: "Склад",
+      required: true,
+    },
+    receivedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    location: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true, // автоматически добавит createdAt и updatedAt
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
-export interface Cartridge {
-  _id?: ObjectId;
-  user: ObjectId;
-  inventoryId: string;
-  manufacturer?: string;
-  model: string;
-  tonerColor: "черный" | "желтый" | "голубой" | "красный";
-  printerModels: string[];
-  status: CartridgeStatus;
-  receivedAt?: string;
-  location?: string;
-}
-
-export interface CartridgeDTO {
-  _id: string;
-  user: string;
-  inventoryId: string;
-  manufacturer?: string;
-  model: string;
-  tonerColor: "черный" | "желтый" | "голубой" | "красный";
-  printerModels: string[];
-  status: CartridgeStatus;
-  receivedAt?: string;
-  location?: string;
-}
+export default mongoose.models.Cartridge ||
+  mongoose.model("Cartridge", cartridgeSchema);

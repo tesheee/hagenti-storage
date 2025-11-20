@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/shared/styles/globals.css";
 import { Providers } from "@/app/providers";
-import { LayoutContent } from "@/components/layout/LayoutContent";
+import { LayoutContent } from "@/shared/components/layout/LayoutContent";
 
 export const metadata: Metadata = {
   title: "hagenti.admin",

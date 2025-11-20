@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import { menuItem } from "./Navigation";
 import Image from "next/image";
-import { User } from "@/shared/models/user";
+import { User } from "@/shared/types/user";
 
 interface SidebarProps {
   activeItem?: string;

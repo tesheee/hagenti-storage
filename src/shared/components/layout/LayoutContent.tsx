@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/shared/store/authStore";
-import Navigation from "@/components/layout/Navigation";
+import Navigation from "@/shared/components/layout/Navigation";
 
 interface LayoutContentProps {
   children: React.ReactNode;

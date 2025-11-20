@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAccessToken } from "@/lib/auth/tokens";
-import Cartridge from "@/shared/models/cartridge";
-import { connectDB } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
-  await connectDB();
   const token = req.headers.get("Authorization")?.replace("Bearer ", "");
   if (!token) return NextResponse.json({ error: "No token" }, { status: 401 });
 
@@ -12,7 +9,9 @@ export async function GET(req: NextRequest) {
   if (!payload)
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-  const cartridges = await Cartridge.find({ _id: payload.id });
-
-  return NextResponse.json(cartridges);
+  return NextResponse.json({
+    id: payload.id,
+    email: payload.email,
+    username: payload.username,
+  });
 }

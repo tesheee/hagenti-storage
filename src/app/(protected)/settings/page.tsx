@@ -2,18 +2,18 @@
 
 import React from "react";
 import { LogOut } from "lucide-react";
-import { useAuthStore } from "@/shared/store/authStore";
 import { useRouter } from "next/navigation";
-import { apiClient } from "@/lib/api/client";
+import { useAuthStore } from "@/shared/store/authStore";
+import axios from "axios";
 
 const page = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { logout } = useAuthStore();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { logout } = useAuthStore();
 
   const onClickLogout = async () => {
-    await apiClient.post("auth/logout");
+    await axios.post("http://localhost:3000/api/auth/logout");
     logout();
     router.push("/auth");
   };
