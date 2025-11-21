@@ -18,7 +18,7 @@ interface CartridgeTableProps {
   cartridges: Cartridge[];
   onCartridgeClick?: (cartridge: Cartridge) => void;
   onCartridgeCreate: (cartridge: CartridgeFormData) => void;
-  onCartridgeUpdate?: (id: string, updateData: Partial<Cartridge>) => void;
+  onCartridgeUpdate: (id: string, updateData: Partial<Cartridge>) => void;
 }
 
 export default function CartridgeTable({
