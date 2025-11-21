@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuthStore } from "@/shared/store/authStore";
-import { createAxiosInstance } from "@/lib/axios";
+import { api } from "@/lib/axiosInstance";
 
 type loginProps = {
   onAuth: () => void;
@@ -10,7 +10,6 @@ type loginProps = {
 };
 
 const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
-  const api = createAxiosInstance();
   const [formData, setFormData] = useState({
     email: "",
     password: "",

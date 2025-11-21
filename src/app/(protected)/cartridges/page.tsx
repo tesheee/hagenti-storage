@@ -4,11 +4,9 @@ import CartridgeTable from "@/app/(protected)/cartridges/components/CartridgeTab
 import type { Cartridge } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/shared/store/authStore";
-import { createAxiosInstance } from "@/lib/axios";
+import { api } from "@/lib/axiosInstance";
 
 export default function CartridgesPage() {
-  const api = createAxiosInstance();
-
   const fetchCartridges = async (): Promise<Cartridge[]> => {
     const response = await api.get("/cartridges");
     return response.data;

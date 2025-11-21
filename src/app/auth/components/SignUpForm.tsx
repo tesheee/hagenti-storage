@@ -1,6 +1,6 @@
 "use client";
 
-import { createAxiosInstance } from "@/lib/axios";
+import { api } from "@/lib/axiosInstance";
 import { useAuthStore } from "@/shared/store/authStore";
 import { useState } from "react";
 
@@ -13,7 +13,6 @@ export default function SignUpForm({
   onSwitchToLogin,
   onAuth,
 }: SignUpFormProps) {
-  const api = createAxiosInstance();
   const [formData, setFormData] = useState({
     username: "",
     email: "",

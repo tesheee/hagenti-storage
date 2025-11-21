@@ -3,10 +3,9 @@
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/shared/store/authStore";
-import { createAxiosInstance } from "@/lib/axios";
+import { api } from "@/lib/axiosInstance";
 
 const page = () => {
-  const api = createAxiosInstance();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
   // eslint-disable-next-line react-hooks/rules-of-hooks
