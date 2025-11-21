@@ -1,19 +1,25 @@
 "use client";
 
+import { useAuthStore } from "@/shared/store/authStore";
+import axios from "axios";
 import { useState } from "react";
 
 interface SignUpFormProps {
-  onAuth?: () => void;
+  onAuth: () => void;
   onSwitchToLogin?: () => void;
 }
 
-export default function SignUpForm({ onSwitchToLogin }: SignUpFormProps) {
+export default function SignUpForm({
+  onSwitchToLogin,
+  onAuth,
+}: SignUpFormProps) {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const { login } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -41,22 +47,25 @@ export default function SignUpForm({ onSwitchToLogin }: SignUpFormProps) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/signup",
+        {
+          username: formData.username,
           email: formData.email,
           password: formData.password,
-        }),
-      });
+        }
+      );
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error("Ошибка регистрации");
       }
 
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
+      login(
+        response.data.user,
+        response.data.accessToken,
+        response.data.expiresIn
+      );
+      onAuth();
     } catch (err: any) {
       setError(err.message || "Ошибка регистрации");
     } finally {
@@ -88,7 +97,7 @@ export default function SignUpForm({ onSwitchToLogin }: SignUpFormProps) {
           <input
             type="text"
             name="name"
-            value={formData.name}
+            value={formData.username}
             onChange={handleChange}
             placeholder="Иван Иванов"
             required

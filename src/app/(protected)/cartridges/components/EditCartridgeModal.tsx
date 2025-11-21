@@ -7,7 +7,7 @@ import { Cartridge } from "@/shared/types/product";
 interface EditCartridgeModalProps {
   cartridge: Cartridge;
   onClose: () => void;
-  onSave: (id: string | number, data: Partial<Cartridge>) => Promise<void>;
+  onSave: (id: string, updateData: Partial<Cartridge>) => void;
 }
 
 export function EditCartridgeModal({

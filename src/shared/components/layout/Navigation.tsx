@@ -36,6 +36,7 @@ const Navigation = () => {
   const router = useRouter();
   const [isWarehouseOpen, setIsWarehouseOpen] = useState(false);
   const { user } = useAuthStore();
+  console.log(user);
 
   const menuItems: menuItem[] = [
     { id: "home", label: "Главная", icon: Home, url: "" },

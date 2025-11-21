@@ -10,7 +10,10 @@ export async function POST(req: NextRequest) {
 
   const user = await User.findOne({ email });
   if (!user || !(await verifyPassword(password, user.password))) {
-    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Неверный логин или пароль" },
+      { status: 401 }
+    );
   }
 
   const accessToken = await createAccessToken({
@@ -23,7 +26,15 @@ export async function POST(req: NextRequest) {
   user.refreshToken = refreshToken;
   await user.save();
 
-  const response = NextResponse.json({ accessToken });
+  const response = NextResponse.json({
+    accessToken,
+    expiresIn: 15 * 60,
+    user: {
+      id: user._id.toString(),
+      email: user.email,
+      username: user.username ?? null, // или username → name, как тебе удобнее
+    },
+  });
   response.cookies.set("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

@@ -472,28 +472,7 @@ export default function CartridgeTable({
         <EditCartridgeModal
           cartridge={selectedCartridge}
           onClose={closeModal}
-          onSave={async (id, updateData) => {
-            try {
-              const res = await fetch("/api/cartridges", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id, ...updateData }),
-              });
-
-              if (!res.ok) {
-                const err = await res.json();
-                alert(`Ошибка: ${err.error || "Не удалось обновить картридж"}`);
-                return;
-              }
-
-              if (onCartridgeUpdate) {
-                onCartridgeUpdate(id.toString(), updateData);
-              }
-            } catch (error) {
-              console.error("Ошибка при обновлении:", error);
-              alert("Ошибка при обновлении картриджа");
-            }
-          }}
+          onSave={onCartridgeUpdate}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { authForms, AuthFormKey } from "@/lib/auth-forms";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/shared/store/authStore";
@@ -14,18 +14,26 @@ export default function AuthPage({ view, extra = [] }: AuthProps) {
   const Form = authForms[view];
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user } = useAuthStore();
+  const { user, refresh } = useAuthStore();
   const redirect = searchParams.get("redirect") || "/";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    // Восстанавливаем сессию
+    const init = async () => {
+      await refresh();
+      setLoading(false);
+    };
+    init();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (!loading && user) {
       router.push(redirect);
     }
-  }, [user, router, redirect]);
+  }, [user, loading, router, redirect]);
 
-  const handleSuccess = () => {
-    router.push(redirect);
-  };
+  if (loading) return <div>Загрузка...</div>;
 
   if (!Form) {
     return <div className="text-red-400">Форма «{view}» не найдена</div>;
@@ -59,7 +67,7 @@ export default function AuthPage({ view, extra = [] }: AuthProps) {
         >
           <Form
             onSwitchToLogin={() => router.push("/auth/login")}
-            onAuth={handleSuccess}
+            onAuth={() => router.push(redirect)}
             onSwitchToSingUp={() => router.push("/auth/signup")}
           />
         </div>

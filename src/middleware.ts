@@ -2,31 +2,31 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// const PUBLIC_PATHS = [
-//   "/",
-//   "/auth/login",
-//   "/auth/signup",
-//   "/api/auth/login", // ← ДОБАВИЛ API ЛОГИНА
-//   "/api/auth/signup", // ← если будет
-//   "/api/auth/refresh", // ← ОБЯЗАТЕЛЬНО
-//   "/api/auth/me", // ← ОБЯЗАТЕЛЬНО
-//   "/api/auth/logout", // ← когда сделаешь
-// ] as const;
+const PUBLIC_PATHS = [
+  "/",
+  "/auth/login",
+  "/auth/signup",
+  "/api/auth/login", // ← ДОБАВИЛ API ЛОГИНА
+  "/api/auth/signup", // ← если будет
+  "/api/auth/refresh", // ← ОБЯЗАТЕЛЬНО
+  "/api/auth/me", // ← ОБЯЗАТЕЛЬНО
+  "/api/auth/logout", // ← когда сделаешь
+] as const;
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // // 1. Публичные пути — пропускаем ВСЕХ (даже без куки)
-  //   const isPublic = PUBLIC_PATHS.some(
-  //     (path) => pathname === path || pathname.startsWith(path + "/")
-  //   );
+  // 1. Публичные пути — пропускаем ВСЕХ (даже без куки)
+  const isPublic = PUBLIC_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(path + "/")
+  );
 
-  //   if (isPublic) {
-  //     return NextResponse.next();
-  //   }
+  if (isPublic) {
+    return NextResponse.next();
+  }
 
-  //   // 2. Всё остальное — защищено
-  //   const refreshToken = request.cookies.get("refreshToken")?.value;
+  // 2. Всё остальное — защищено
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
   //   if (!refreshToken) {
   //     // Если это API запрос — возвращаем 401, а не редирект

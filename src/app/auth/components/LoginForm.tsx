@@ -39,18 +39,12 @@ const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
         }
       );
 
-      const userResponse = await axios.get(
-        "http://localhost:3000/api/auth/me",
-        {
-          headers: {
-            Authorization: `Bearer ${response.data.accessToken}`,
-          },
-        }
+      console.log(response);
+      login(
+        response.data.user,
+        response.data.accessToken,
+        response.data.expiresIn
       );
-
-      console.log(userResponse);
-
-      login(userResponse.data, response.data.accessToken);
       onAuth();
     } catch (err: any) {
       setError(err.response?.data?.error || "Ошибка авторизации");

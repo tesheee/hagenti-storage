@@ -36,10 +36,18 @@ export default function CartridgesPage() {
     updateData: Partial<Cartridge>
   ) => {
     try {
-      const response = await axios.patch("cartridges", {
-        id,
-        ...updateData,
-      });
+      const response = await axios.patch(
+        "http://localhost:3000/api/cartridges",
+        {
+          id,
+          ...updateData,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       console.log(response);
       refetch();
     } catch (err) {
@@ -50,13 +58,17 @@ export default function CartridgesPage() {
 
   const handleCartridgeCreate = async (cartridge) => {
     try {
-      const response = await fetch("/api/cartridges", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...cartridge }),
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/cartridges",
+        cartridge,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error("Не удалось добавить картридж");
       }
 

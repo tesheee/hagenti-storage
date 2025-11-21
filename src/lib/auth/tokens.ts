@@ -22,20 +22,17 @@ export interface AccessTokenPayload extends TokenPayload {
 export async function createAccessToken(
   payload: AccessTokenPayload
 ): Promise<string> {
-  const accessToken = new SignJWT({ ...payload })
+  return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(ACCESS_TOKEN_EXPIRES)
     .sign(ACCESS_TOKEN_SECRET);
-  await accessToken;
-  console.log(accessToken);
-  return accessToken;
 }
 
 export async function createRefreshToken(
   payload: TokenPayload
 ): Promise<string> {
-  return new SignJWT({ userId: payload.id })
+  return new SignJWT({ id: payload.id })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(REFRESH_TOKEN_EXPIRES)
@@ -45,7 +42,6 @@ export async function createRefreshToken(
 export async function verifyAccessToken(token: string): Promise<JWTPayload> {
   try {
     const { payload } = await jwtVerify(token, ACCESS_TOKEN_SECRET);
-    console.log(token);
     return payload as JWTPayload;
   } catch (error) {
     throw new Error("Invalid access token");
@@ -58,7 +54,7 @@ export async function verifyRefreshToken(
   try {
     const { payload } = await jwtVerify(token, REFRESH_TOKEN_SECRET);
 
-    // Обрабатываем оба варианта: id и userId
+    // Обрабатываем оба варианта: id
     const id = payload.id;
 
     if (!id) {
