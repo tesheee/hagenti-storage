@@ -56,9 +56,8 @@ export async function verifyRefreshToken(
 
     // Обрабатываем оба варианта: id
     const id = payload.id;
-
-    if (!id) {
-      throw new Error("No user ID in token");
+    if (typeof id !== "string" || !id) {
+      throw new Error("Invalid payload: missing or invalid id");
     }
 
     return { id };
