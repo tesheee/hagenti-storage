@@ -1,7 +1,7 @@
 "use client";
 
+import { createAxiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/shared/store/authStore";
-import axios from "axios";
 import { useState } from "react";
 
 interface SignUpFormProps {
@@ -13,6 +13,7 @@ export default function SignUpForm({
   onSwitchToLogin,
   onAuth,
 }: SignUpFormProps) {
+  const api = createAxiosInstance();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -47,14 +48,11 @@ export default function SignUpForm({
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/signup",
-        {
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+      const response = await api.post("/auth/signup", {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      });
 
       if (!response) {
         throw new Error("Ошибка регистрации");

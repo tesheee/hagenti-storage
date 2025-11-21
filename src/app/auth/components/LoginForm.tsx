@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useAuthStore } from "@/shared/store/authStore";
-import axios from "axios";
+import { createAxiosInstance } from "@/lib/axios";
 
 type loginProps = {
   onAuth: () => void;
@@ -10,6 +10,7 @@ type loginProps = {
 };
 
 const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
+  const api = createAxiosInstance();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -31,13 +32,10 @@ const LoginForm: React.FC<loginProps> = ({ onSwitchToSingUp, onAuth }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        {
-          email: formData.email,
-          password: formData.password,
-        }
-      );
+      const response = await api.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
 
       console.log(response);
       login(

@@ -1,8 +1,17 @@
 import axios from "axios";
+import { useAuthStore } from "@/shared/store/authStore";
 
-const api = axios.create({
-  baseURL: "http://localhost:3000/api",
-  withCredentials: true,
-});
+// Создаём функцию для получения axios с актуальным токеном
+export const createAxiosInstance = () => {
+  const token = useAuthStore.getState().accessToken;
 
-export default api;
+  const instance = axios.create({
+    baseURL: "https://hagenti-storage-7sez.vercel.app/api", // твой базовый URL
+    headers: {
+      Authorization: token ? `Bearer ${token}` : undefined,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return instance;
+};

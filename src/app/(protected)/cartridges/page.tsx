@@ -4,17 +4,13 @@ import CartridgeTable from "@/app/(protected)/cartridges/components/CartridgeTab
 import type { Cartridge } from "@/shared/types/product";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/shared/store/authStore";
-import axios from "axios";
+import { createAxiosInstance } from "@/lib/axios";
 
 export default function CartridgesPage() {
-  const { accessToken } = useAuthStore();
+  const api = createAxiosInstance();
 
   const fetchCartridges = async (): Promise<Cartridge[]> => {
-    const response = await axios.get("http://localhost:3000/api/cartridges", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const response = await api.get("/cartridges");
     return response.data;
   };
   const { user } = useAuthStore.getState();
@@ -36,18 +32,10 @@ export default function CartridgesPage() {
     updateData: Partial<Cartridge>
   ) => {
     try {
-      const response = await axios.patch(
-        "http://localhost:3000/api/cartridges",
-        {
-          id,
-          ...updateData,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await api.patch("/cartridges", {
+        id,
+        ...updateData,
+      });
       console.log(response);
       refetch();
     } catch (err) {
@@ -58,15 +46,7 @@ export default function CartridgesPage() {
 
   const handleCartridgeCreate = async (cartridge) => {
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/cartridges",
-        cartridge,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const response = await api.post("/cartridges", cartridge);
 
       if (!response) {
         throw new Error("Не удалось добавить картридж");
