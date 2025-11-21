@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, ChevronRight, ChevronDown, Menu } from "lucide-react";
 import { menuItem, PageAction } from "./Navigation";
 import { usePageActions } from "@/shared/components/layout/PageActionsContext";
-import { User } from "@/shared/models/user";
+import { User } from "@/shared/types/user";
 
 interface MobileMenuProps {
   activeItem?: string;
