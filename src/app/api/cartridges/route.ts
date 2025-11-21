@@ -67,9 +67,9 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // 🔹 Проверка обязательных полей
-    if (!inventoryId || !model || !tonerColor) {
+    if (!model || !tonerColor) {
       return NextResponse.json(
-        { error: "inventoryId, model and tonerColor are required" },
+        { error: "model and tonerColor are required" },
         { status: 400 }
       );
     }
