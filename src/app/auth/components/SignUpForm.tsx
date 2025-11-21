@@ -93,7 +93,7 @@ export default function SignUpForm({
           </label>
           <input
             type="text"
-            name="name"
+            name="username"
             value={formData.username}
             onChange={handleChange}
             placeholder="Иван Иванов"

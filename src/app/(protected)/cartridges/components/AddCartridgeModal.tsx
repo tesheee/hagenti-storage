@@ -31,7 +31,6 @@ export default function AddCartridgeModal({
   onSave,
 }: AddCartridgeModalProps) {
   const [formData, setFormData] = useState<CartridgeFormData>({
-    inventoryId: "",
     manufacturer: "",
     sku: "",
     serial: "",
@@ -76,9 +75,6 @@ export default function AddCartridgeModal({
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof CartridgeFormData, string>> = {};
 
-    if (!formData.inventoryId.trim()) {
-      newErrors.inventoryId = "Инвентарный номер обязателен";
-    }
     if (!formData.model.trim()) {
       newErrors.model = "Модель обязательна";
     }
@@ -106,7 +102,6 @@ export default function AddCartridgeModal({
 
   const handleClose = () => {
     setFormData({
-      inventoryId: "",
       manufacturer: "",
       sku: "",
       serial: "",
@@ -166,32 +161,6 @@ export default function AddCartridgeModal({
                 Основная информация
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">
-                    Инвентарный номер <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.inventoryId}
-                    onChange={(e) =>
-                      handleChange("inventoryId", e.target.value)
-                    }
-                    className="w-full px-3 py-2 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-                    style={{
-                      backgroundColor: "#1a1d20",
-                      border: errors.inventoryId
-                        ? "1px solid #ef4444"
-                        : "1px solid #2d3237",
-                    }}
-                    placeholder="INV-001"
-                  />
-                  {errors.inventoryId && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.inventoryId}
-                    </p>
-                  )}
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">
                     Модель <span className="text-red-500">*</span>

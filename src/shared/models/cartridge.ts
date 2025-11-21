@@ -7,12 +7,6 @@ const cartridgeSchema = new mongoose.Schema(
       ref: "User", // предполагаем, что у тебя есть модель User
       required: true,
     },
-    inventoryId: {
-      type: String,
-      required: true,
-      unique: true, // инвентарный номер должен быть уникальным
-      trim: true,
-    },
     manufacturer: {
       type: String,
       trim: true,

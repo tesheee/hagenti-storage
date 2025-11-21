@@ -10,7 +10,6 @@ export type CartridgeStatus =
 export interface Cartridge {
   _id?: ObjectId;
   user: ObjectId;
-  inventoryId: string;
   manufacturer?: string;
   model: string;
   tonerColor: "черный" | "желтый" | "голубой" | "красный";
