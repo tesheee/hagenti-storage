@@ -42,4 +42,32 @@ body {
   }
 }
 
+.container__checkbox {
+  cursor: pointer;
+  width: 20px;
+  align-self: center;
+}
 
+.container__checkbox input {
+  display: none;
+}
+
+.container__checkbox svg {
+  overflow: visible;
+}
+
+.path {
+  fill: none;
+  stroke: #99a1af; /* Замени на свой цвет, если нужно */
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease;
+  stroke-dasharray: 241 9999999;
+  stroke-dashoffset: 0;
+}
+
+.container__checkbox input:checked ~ svg .path {
+  stroke-dasharray: 70.5096664428711 9999999;
+  stroke-dashoffset: -262.2723388671875;
+}

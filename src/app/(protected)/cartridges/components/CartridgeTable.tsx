@@ -1,10 +1,19 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { Search, Filter, ChevronDown, Package, Edit, Plus } from "lucide-react";
+import {
+  Search,
+  Filter,
+  ChevronDown,
+  Package,
+  Edit,
+  Plus,
+  Trash,
+} from "lucide-react";
 import { Cartridge } from "@/shared/types/product";
 import { EditCartridgeModal } from "./EditCartridgeModal";
 import AddCartridgeModal, { CartridgeFormData } from "./AddCartridgeModal";
 import { useRegisterPageActions } from "@/shared/hooks/useRegisterPageActions";
+import CheckboxWithAnimation from "@/shared/components/CheckboxWithAnimation";
 
 // ---------- Типы ----------
 type CartridgeStatus =
@@ -37,6 +46,8 @@ export default function CartridgeTable({
   );
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const cartridges = Array.isArray(initialCartridges) ? initialCartridges : [];
 
@@ -92,7 +103,6 @@ export default function CartridgeTable({
     const result = cartridges.filter((cartridge) => {
       const matchesSearch =
         cartridge.model.toLowerCase().includes(query) ||
-        cartridge.inventoryId.toLowerCase().includes(query) ||
         (cartridge.manufacturer?.toLowerCase().includes(query) ?? false) ||
         (cartridge.sku?.toLowerCase().includes(query) ?? false) ||
         (cartridge.serial?.toLowerCase().includes(query) ?? false);
@@ -120,6 +130,29 @@ export default function CartridgeTable({
     return result;
   }, [cartridges, searchQuery, statusFilter]);
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredCartridges.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredCartridges.map((c) => c._id)));
+    }
+  };
+
+  const isAllSelected =
+    selectedIds.size === filteredCartridges.length &&
+    filteredCartridges.length > 0;
+  const isIndeterminate =
+    selectedIds.size > 0 && selectedIds.size < filteredCartridges.length;
+
   const openModal = (cartridge: Cartridge) => {
     console.log(cartridge);
     setSelectedCartridge(cartridge);
@@ -140,7 +173,14 @@ export default function CartridgeTable({
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">Картриджи</h2>
-          <p className="text-gray-400">Всего: {filteredCartridges.length}</p>
+          <p className="text-gray-400">
+            Всего: {filteredCartridges.length}
+            {selectedIds.size > 0 && (
+              <span className="ml-3 text-green-400">
+                • Выбрано: {selectedIds.size}
+              </span>
+            )}
+          </p>
         </div>
 
         <button
@@ -173,7 +213,7 @@ export default function CartridgeTable({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Поиск по модели, инв. номеру, производителю..."
+            placeholder="Поиск по модели, производителю..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
@@ -246,209 +286,246 @@ export default function CartridgeTable({
         className="hidden lg:block rounded-xl overflow-hidden border"
         style={{ borderColor: "#2d3237" }}
       >
-        <table
-          className="w-full min-w-max"
-          style={{ backgroundColor: "#212529" }}
-        >
+        <table className="w-full" style={{ backgroundColor: "#212529" }}>
           <thead
             className="sticky top-0 z-10"
             style={{ backgroundColor: "#1a1d20" }}
           >
             <tr>
+              {/* Чекбокс "Выбрать все" */}
+              <th className="px-6 py-3 text-left w-12">
+                <CheckboxWithAnimation
+                  checked={isAllSelected}
+                  onChange={toggleSelectAll}
+                />
+              </th>
               {[
                 "Модель",
-                "Инв. номер",
                 "Цвет",
                 "Статус",
                 "Совместимость",
                 "Расположение",
                 "Действия",
-              ].map((header) => (
+              ].map((h) => (
                 <th
-                  key={header}
+                  key={h}
                   className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400"
                 >
-                  {header}
+                  {h}
                 </th>
               ))}
             </tr>
           </thead>
+
           <tbody>
-            {filteredCartridges.map((cartridge, key) => (
-              <tr
-                key={key}
-                className="transition-all hover:bg-[#1a1d20]"
-                style={{ borderBottom: "1px solid #2d3237" }}
-              >
-                <td
-                  className="px-6 py-4 whitespace-nowrap cursor-pointer"
-                  onClick={() => onCartridgeClick?.(cartridge)}
+            {filteredCartridges.map((cartridge) => {
+              const isSelected = selectedIds.has(cartridge._id);
+
+              return (
+                <tr
+                  key={cartridge._id}
+                  className={`transition-all cursor-pointer ${
+                    isSelected ? "bg-green-900/20" : "hover:bg-[#1a1d20]"
+                  }`}
+                  style={{ borderBottom: "1px solid #2d3237" }}
+                  onClick={() => openModal(cartridge)}
                 >
-                  <div className="flex items-center">
-                    <Package className="w-5 h-5 text-gray-500 mr-2" />
-                    <div>
-                      <div className="text-sm font-medium text-white">
-                        {cartridge.model}
-                      </div>
-                      <div className="text-sm text-gray-400">
-                        {cartridge.manufacturer}
+                  {/* Чекбокс строки */}
+                  <td
+                    className="px-6 py-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <CheckboxWithAnimation
+                      checked={isSelected}
+                      onChange={() => {
+                        toggleSelect(cartridge._id);
+                      }}
+                    />
+                  </td>
+
+                  {/* Модель + производитель */}
+                  <td
+                    className="px-6 py-4"
+                    onClick={() => onCartridgeClick?.(cartridge)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Package className="w-5 h-5 text-gray-500 shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-white">
+                          {cartridge.model}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {cartridge.manufacturer}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-300">
-                  {cartridge.inventoryId}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-4 h-4 rounded-full ${
-                        tonerColors[cartridge.tonerColor]
+                  </td>
+
+                  {/* Цвет тонера */}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`w-4 h-4 rounded-full ${
+                          tonerColors[cartridge.tonerColor]
+                        }`}
+                      />
+                      <span className="text-sm text-gray-300">
+                        {cartridge.tonerColor}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Статус */}
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        statusColors[cartridge.status]
                       }`}
-                    />
-                    <span className="text-sm text-gray-300">
-                      {cartridge.tonerColor}
+                    >
+                      {cartridge.status}
                     </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 inline-flex text-xs font-semibold rounded-full ${
-                      statusColors[cartridge.status]
-                    }`}
+                  </td>
+
+                  {/* Совместимость (первые 2 модели) */}
+                  <td className="px-6 py-4 text-sm text-gray-300">
+                    {cartridge.printerModels.slice(0, 2).join(", ")}
+                    {cartridge.printerModels.length > 2 && " …"}
+                  </td>
+
+                  {/* Расположение */}
+                  <td className="px-6 py-4 text-sm text-gray-400">
+                    {cartridge.location || "—"}
+                  </td>
+
+                  {/* Кнопка редактирования */}
+                  <td
+                    className="px-6 py-4"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    {cartridge.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-300">
-                  {cartridge.printerModels.map((model, id) => (
-                    <p key={id}>{model}</p>
-                  ))}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-400">
-                  {cartridge.location || "—"}
-                </td>
-                <td className="px-6 py-4 text-sm">
-                  <button
-                    onClick={() => openModal(cartridge)}
-                    className="p-1 text-gray-400 hover:text-white transition-colors"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                    <button
+                      onClick={() => console.log("first")}
+                      className="p-2 text-gray-400 hover:text-white transition-color cursor-pointer"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
+        {/* Пустое состояние */}
         {filteredCartridges.length === 0 && (
           <div
-            className="text-center py-12 text-gray-400"
+            className="text-center py-16 text-gray-400"
             style={{ backgroundColor: "#212529" }}
           >
-            <Package className="w-12 h-12 mx-auto mb-3 text-gray-500" />
-            <p>Картриджи не найдены</p>
+            <Package className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+            <p className="text-lg">Картриджи не найдены</p>
           </div>
         )}
       </div>
 
       {/* Mobile Cards */}
       <div className="lg:hidden space-y-3">
-        {filteredCartridges.map((cartridge, key) => (
-          <div
-            key={key}
-            className="rounded-lg border p-4"
-            style={{
-              backgroundColor: "#1a1d20",
-              borderColor: "#2d3237",
-            }}
-          >
-            {/* Header */}
+        {filteredCartridges.map((cartridge, key) => {
+          const isSelected = selectedIds.has(cartridge._id);
+          return (
             <div
-              className="flex items-start justify-between mb-3 pb-3"
-              style={{ borderBottom: "1px solid #2d3237" }}
+              key={key}
+              className={`rounded-lg border p-4 transition-all ${
+                isSelected
+                  ? "border-green-500 bg-green-900/10"
+                  : "border-[#2d3237]"
+              }`}
+              style={{
+                backgroundColor: "#1a1d20",
+                borderColor: "#2d3237",
+              }}
             >
+              {/* Header */}
               <div
-                className="flex-1 cursor-pointer"
-                onClick={() => onCartridgeClick?.(cartridge)}
+                className="flex items-start justify-between mb-3 pb-3"
+                style={{ borderBottom: "1px solid #2d3237" }}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <Package className="w-4 h-4 text-gray-500 shrink-0" />
-                  <h3 className="text-sm font-semibold text-white">
-                    {cartridge.model}
-                  </h3>
-                </div>
-                <p className="text-xs text-gray-400 ml-6">
-                  {cartridge.manufacturer}
-                </p>
-              </div>
-              <button
-                onClick={() => openModal(cartridge)}
-                className="p-2 text-gray-400 hover:text-white transition-colors shrink-0"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Info Grid */}
-            <div className="space-y-2">
-              {/* Inventory ID */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Инв. номер:</span>
-                <span className="text-xs text-gray-200">
-                  {cartridge.inventoryId}
-                </span>
-              </div>
-
-              {/* Color */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Цвет:</span>
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-3 h-3 rounded-full ${
-                      tonerColors[cartridge.tonerColor]
-                    }`}
-                  />
-                  <span className="text-xs text-gray-200">
-                    {cartridge.tonerColor}
-                  </span>
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Статус:</span>
-                <span
-                  className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    statusColors[cartridge.status]
-                  }`}
+                <div
+                  className="flex-1 cursor-pointer"
+                  onClick={() => onCartridgeClick?.(cartridge)}
                 >
-                  {cartridge.status}
-                </span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Package className="w-4 h-4 text-gray-500 shrink-0" />
+                    <h3 className="text-sm font-semibold text-white">
+                      {cartridge.model}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-gray-400 ml-6">
+                    {cartridge.manufacturer}
+                  </p>
+                </div>
+                <button
+                  onClick={() => openModal(cartridge)}
+                  className="p-2 text-gray-400 hover:text-white transition-colors shrink-0"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Quantity */}
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-400">Совместимость:</span>
-                <span className="text-xs text-gray-200">
-                  {cartridge.printerModels.map((model, id) => (
-                    <p key={id}>{model}</p>
-                  ))}
-                </span>
-              </div>
+              {/* Info Grid */}
+              <div className="space-y-2">
+                {/* Inventory ID */}
+                <div className="flex items-center justify-between"></div>
 
-              {/* Location */}
-              {cartridge.location && (
+                {/* Color */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">Расположение:</span>
-                  <span className="text-xs text-gray-200">
-                    {cartridge.location}
+                  <span className="text-xs text-gray-400">Цвет:</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        tonerColors[cartridge.tonerColor]
+                      }`}
+                    />
+                    <span className="text-xs text-gray-200">
+                      {cartridge.tonerColor}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Статус:</span>
+                  <span
+                    className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                      statusColors[cartridge.status]
+                    }`}
+                  >
+                    {cartridge.status}
                   </span>
                 </div>
-              )}
+
+                {/* Quantity */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Совместимость:</span>
+                  <span className="text-xs text-gray-200">
+                    {cartridge.printerModels.map((model, id) => (
+                      <p key={id}>{model}</p>
+                    ))}
+                  </span>
+                </div>
+
+                {/* Location */}
+                {cartridge.location && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">Расположение:</span>
+                    <span className="text-xs text-gray-200">
+                      {cartridge.location}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {filteredCartridges.length === 0 && (
           <div className="text-center py-12 text-gray-400">
