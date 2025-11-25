@@ -3,16 +3,16 @@ import React, { useState, useMemo } from "react";
 import {
   Search,
   Filter,
-  ChevronDown,
   Package,
   Edit,
   Plus,
   Trash,
+  Pencil,
+  ArrowUpDown,
 } from "lucide-react";
 import { Cartridge } from "@/shared/types/product";
 import { EditCartridgeModal } from "./EditCartridgeModal";
 import AddCartridgeModal, { CartridgeFormData } from "./AddCartridgeModal";
-import { useRegisterPageActions } from "@/shared/hooks/useRegisterPageActions";
 import CheckboxWithAnimation from "@/shared/components/CheckboxWithAnimation";
 
 // ---------- Типы ----------
@@ -41,25 +41,17 @@ export default function CartridgeTable({
     "all"
   );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [selectedCartridge, setSelectedCartridge] = useState<Cartridge | null>(
     null
   );
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const cartridges = Array.isArray(initialCartridges) ? initialCartridges : [];
-
-  useRegisterPageActions([
-    {
-      label: "Добавить",
-      icon: Plus,
-      onClick: () => {
-        setIsCreateOpen(true);
-      },
-    },
-  ]);
 
   const statuses: (CartridgeStatus | "all")[] = [
     "all",
@@ -169,116 +161,290 @@ export default function CartridgeTable({
       className="w-full h-full p-4 lg:p-6"
       style={{ backgroundColor: "#212529" }}
     >
-      {/* Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Картриджи</h2>
-          <p className="text-gray-400">
-            Всего: {filteredCartridges.length}
-            {selectedIds.size > 0 && (
-              <span className="ml-3 text-green-400">
-                • Выбрано: {selectedIds.size}
-              </span>
-            )}
-          </p>
-        </div>
+      {/* Sticky Header */}
+      <div
+        className="sticky top-0 z-50 pb-4"
+        style={{
+          backgroundColor: "rgba(33,37,41,0.8)",
+          backdropFilter: "blur(2px)",
+        }}
+      >
+        <div className="flex justify-between items-center pt-4">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Картриджи</h2>
+            <p className="text-gray-400">
+              Всего: {filteredCartridges.length}
+              {selectedIds.size > 0 && (
+                <span className="ml-3 text-green-400">
+                  • Выбрано: {selectedIds.size}
+                </span>
+              )}
+            </p>
+          </div>
 
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          className="hidden lg:block p-1.5 mr-8 h-10 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95"
-          style={{
-            backgroundColor: "#1a1d20",
-            border: "1px solid #2d3237",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "rgba(87, 215, 91, 0.15)";
-            e.currentTarget.style.borderColor = "#57d75b";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#1a1d20";
-            e.currentTarget.style.borderColor = "#2d3237";
-          }}
-        >
-          <Plus className="text-gray-500" />
-        </button>
+          {/* MAIN PANEL — pinned to top */}
+          <div className="hidden lg:flex items-center mr-4 gap-4">
+            {/* ──────────────── Поиск ──────────────── */}
+            <button
+              onClick={() => {
+                setIsSearchOpen((prev) => !prev);
+              }}
+              className="p-2.5 h-10 transition-all duration-200 hover:scale-[1.07] active:scale-95 flex items-center justify-center rounded-xl"
+              style={{ width: 40, backgroundColor: "#1a1d20" }}
+            >
+              <Search className="text-gray-400" />
+            </button>
+
+            {/* ──────────────── CRUD группа ──────────────── */}
+            <div
+              className="flex items-center relative rounded-2xl overflow-hidden"
+              style={{ backgroundColor: "#1a1d20" }}
+            >
+              {/* Overlay layer */}
+              <div
+                id="hover-bg"
+                className="absolute inset-0 pointer-events-none transition-all duration-200 rounded-2xl"
+                style={{
+                  backgroundColor: "transparent",
+                  backdropFilter: "blur(6px)",
+                }}
+              />
+
+              {/* Add */}
+              <button
+                onMouseEnter={(e) => {
+                  const overlay = document.getElementById("hover-bg");
+                  if (overlay) {
+                    overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                    overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                    overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                  }
+                }}
+                onMouseLeave={() => {
+                  const overlay = document.getElementById("hover-bg");
+                  if (overlay) overlay.style.backgroundColor = "transparent";
+                }}
+                onClick={() => setIsCreateOpen(true)}
+                className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+                style={{ width: 40 }}
+              >
+                <Plus className="text-gray-400" />
+              </button>
+
+              {/* Edit */}
+              <button
+                onMouseEnter={(e) => {
+                  const overlay = document.getElementById("hover-bg");
+                  if (overlay) {
+                    overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                    overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                    overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                  }
+                }}
+                onMouseLeave={() => {
+                  const overlay = document.getElementById("hover-bg");
+                  if (overlay) overlay.style.backgroundColor = "transparent";
+                }}
+                onClick={() => setIsEditOpen(true)}
+                className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+                style={{ width: 40 }}
+              >
+                <Pencil className="text-gray-400" />
+              </button>
+
+              {/* Delete */}
+              <button
+                onMouseEnter={(e) => {
+                  const overlay = document.getElementById("hover-bg");
+                  if (overlay) {
+                    overlay.style.backgroundColor = "rgba(255,0,0,0.15)";
+                    overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                    overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                  }
+                }}
+                onMouseLeave={() => {
+                  const overlay = document.getElementById("hover-bg");
+                  if (overlay) overlay.style.backgroundColor = "transparent";
+                }}
+                onClick={() => {}}
+                className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+                style={{ width: 40 }}
+              >
+                <Trash className="text-gray-400" />
+              </button>
+            </div>
+
+            {/* ──────────────── Filter/Sort ──────────────── */}
+            <div
+              className="flex items-center relative rounded-2xl overflow-hidden"
+              style={{ backgroundColor: "#1a1d20" }}
+            >
+              <div
+                id="hover-bg-2"
+                className="absolute inset-0 pointer-events-none transition-all duration-200 rounded-2xl"
+                style={{
+                  backgroundColor: "transparent",
+                  backdropFilter: "blur(6px)",
+                }}
+              />
+
+              {/* Filter */}
+              <button
+                onMouseEnter={(e) => {
+                  const overlay = document.getElementById("hover-bg-2");
+                  if (overlay) {
+                    overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                    overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                    overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                  }
+                }}
+                onMouseLeave={() => {
+                  const overlay = document.getElementById("hover-bg-2");
+                  if (overlay) overlay.style.backgroundColor = "transparent";
+                }}
+                //onClick={() => setIsFilterOpen(true)}
+                onClick={() => {
+                  console.log(isFilterOpen);
+                  setIsFilterOpen((prev) => !prev);
+                }}
+                className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+                style={{ width: 40 }}
+              >
+                <Filter className="text-gray-400" />
+              </button>
+              {/* ---------- GLOBAL FILTER MENU (mobile + desktop) ---------- */}
+              <div
+                className={`fixed inset-0 z-[9999] flex items-start justify-end top-14 p-4 ${
+                  isFilterOpen ? "pointer-events-auto" : "pointer-events-none"
+                }`}
+                onClick={() => setIsFilterOpen(false)}
+              >
+                <div
+                  className={`w-full max-w-sm rounded-xl overflow-hidden border shadow-2xl
+      transition-all duration-300 ease-out
+      ${
+        isFilterOpen
+          ? "scale-100 opacity-100 clip-path-inset-0"
+          : "scale-0 opacity-0 clip-path-circle-0"
+      }`}
+                  style={{
+                    backgroundColor: "#1a1d20",
+                    borderColor: "#2d3237",
+                    clipPath: isFilterOpen
+                      ? "inset(0% 0% 0% 0%)"
+                      : "circle(0% at 90% 10%)",
+                    transformOrigin: "90% 10%",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {statuses.map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(status);
+                        setIsFilterOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b]"
+                      style={{
+                        color: statusFilter === status ? "#57d75b" : "#94a3b8",
+                        backgroundColor:
+                          statusFilter === status
+                            ? "rgba(87, 215, 91, 0.1)"
+                            : "transparent",
+                      }}
+                    >
+                      {statusLabels[status]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort */}
+              <button
+                onMouseEnter={(e) => {
+                  const overlay = document.getElementById("hover-bg-2");
+                  if (overlay) {
+                    overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                    overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                    overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                  }
+                }}
+                onMouseLeave={() => {
+                  const overlay = document.getElementById("hover-bg-2");
+                  if (overlay) overlay.style.backgroundColor = "transparent";
+                }}
+                onClick={() => setIsSortOpen((prev) => !prev)}
+                className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+                style={{ width: 40 }}
+              >
+                <ArrowUpDown className="text-gray-400" />
+              </button>
+              {/* Sort popup */}
+              <div
+                className="fixed inset-0 z-[9999] pointer-events-none"
+                onClick={() => setIsSortOpen(false)}
+              >
+                <div
+                  className={`absolute top-18 right-4 w-full max-w-sm rounded-xl overflow-hidden border shadow-2xl pointer-events-auto
+        transition-all duration-400 ease-out
+        ${isSortOpen ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
+                  style={{
+                    backgroundColor: "#1a1d20",
+                    borderColor: "#2d3237",
+                    clipPath: isSortOpen
+                      ? "inset(0% 0% 0% 0%)"
+                      : "circle(0% at calc(100% - 10px) 20px)", // чуть левее — где кнопка сортировки
+                    transformOrigin: "calc(100% - 10px) 20px",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {[
+                    "По дате добавления ↑",
+                    "По дате добавления ↓",
+                    "По модели А→Я",
+                    "По модели Я→А",
+                  ].map((order) => (
+                    <button
+                      key={order}
+                      onClick={() => {
+                        // тут будет твоя логика сортировки
+                        setIsSortOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b] text-slate-300"
+                    >
+                      {order}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Search and Filters */}
-      <div
-        className="rounded-lg p-4 mb-6 space-y-4 border"
-        style={{ backgroundColor: "#1a1d20", borderColor: "#2d3237" }}
-      >
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Поиск по модели, производителю..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-            style={{
-              backgroundColor: "#1a1d20",
-              border: "1px solid #2d3237",
-            }}
-          />
-        </div>
-
-        {/* Status Filter */}
-        <div className="relative">
-          <button
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all"
-            style={{
-              backgroundColor: "#1a1d20",
-              border: `1px solid ${isFilterOpen ? "#57d75b" : "#2d3237"}`,
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-400" />
-              <span className="text-gray-300">
-                {statusLabels[statusFilter]}
-              </span>
-            </div>
-            <ChevronDown
-              className={`w-5 h-5 text-gray-400 transition-transform ${
-                isFilterOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {isFilterOpen && (
-            <div
-              className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-xl border overflow-hidden z-10"
+      {isSearchOpen && (
+        <div
+          className="rounded-lg p-4 mb-6 space-y-4 border"
+          style={{ backgroundColor: "#1a1d20", borderColor: "#2d3237" }}
+        >
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Поиск по модели, производителю..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
               style={{
                 backgroundColor: "#1a1d20",
-                borderColor: "#2d3237",
-                zIndex: 1000,
+                border: "1px solid #2d3237",
               }}
-            >
-              {statuses.map((status) => (
-                <button
-                  key={status}
-                  onClick={() => {
-                    setStatusFilter(status);
-                    setIsFilterOpen(false);
-                  }}
-                  className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b]"
-                  style={{
-                    color: statusFilter === status ? "#57d75b" : "#94a3b8",
-                    backgroundColor:
-                      statusFilter === status
-                        ? "rgba(87, 215, 91, 0.1)"
-                        : "transparent",
-                  }}
-                >
-                  {statusLabels[status]}
-                </button>
-              ))}
-            </div>
-          )}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Table */}
       {/* Desktop Table */}
@@ -305,7 +471,6 @@ export default function CartridgeTable({
                 "Статус",
                 "Совместимость",
                 "Расположение",
-                "Действия",
               ].map((h) => (
                 <th
                   key={h}
@@ -396,19 +561,6 @@ export default function CartridgeTable({
                   <td className="px-6 py-4 text-sm text-gray-400">
                     {cartridge.location || "—"}
                   </td>
-
-                  {/* Кнопка редактирования */}
-                  <td
-                    className="px-6 py-4"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() => console.log("first")}
-                      className="p-2 text-gray-400 hover:text-white transition-color cursor-pointer"
-                    >
-                      <Trash className="w-4 h-4" />
-                    </button>
-                  </td>
                 </tr>
               );
             })}
@@ -428,7 +580,7 @@ export default function CartridgeTable({
       </div>
 
       {/* Mobile Cards */}
-      <div className="lg:hidden space-y-3">
+      <div className="lg:hidden space-y-3 pb-14">
         {filteredCartridges.map((cartridge, key) => {
           const isSelected = selectedIds.has(cartridge._id);
           return (
@@ -533,6 +685,173 @@ export default function CartridgeTable({
             <p>Картриджи не найдены</p>
           </div>
         )}
+      </div>
+
+      {/* ---------- Mobile Bottom Action Bar (Desktop-style) ---------- */}
+      <div
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pb-3 px-4"
+        style={{
+          backgroundColor: "rgba(33,37,41,0.95)",
+          backdropFilter: "blur(2px)",
+        }}
+      >
+        <div className="flex items-center justify-between mt-3">
+          {/* Search */}
+          <button
+            onClick={() => setIsSearchOpen((p) => !p)}
+            className="p-2.5 h-10 transition-all duration-200 hover:scale-[1.07] active:scale-95 flex items-center justify-center rounded-xl"
+            style={{ width: 40, backgroundColor: "#1a1d20" }}
+          >
+            <Search className="text-gray-400" />
+          </button>
+
+          {/* CRUD group (same design as desktop) */}
+          <div
+            className="flex items-center relative rounded-2xl overflow-hidden"
+            style={{ backgroundColor: "#1a1d20" }}
+          >
+            <div
+              id="m-hover-bg"
+              className="absolute inset-0 pointer-events-none transition-all duration-200 rounded-2xl"
+              style={{
+                backgroundColor: "transparent",
+                backdropFilter: "blur(6px)",
+              }}
+            />
+
+            {/* Add */}
+            <button
+              onMouseEnter={(e) => {
+                const overlay = document.getElementById("m-hover-bg");
+                if (overlay) {
+                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                }
+              }}
+              onMouseLeave={() => {
+                const overlay = document.getElementById("m-hover-bg");
+                if (overlay) overlay.style.backgroundColor = "transparent";
+              }}
+              onClick={() => setIsCreateOpen(true)}
+              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+              style={{ width: 40 }}
+            >
+              <Plus className="text-gray-400" />
+            </button>
+
+            {/* Edit */}
+            <button
+              onMouseEnter={(e) => {
+                const overlay = document.getElementById("m-hover-bg");
+                if (overlay) {
+                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                }
+              }}
+              onMouseLeave={() => {
+                const overlay = document.getElementById("m-hover-bg");
+                if (overlay) overlay.style.backgroundColor = "transparent";
+              }}
+              onClick={() => {
+                if (selectedIds.size === 1) {
+                  const id = [...selectedIds][0];
+                  const c = cartridges.find((c) => c._id === id);
+                  if (c) openModal(c);
+                }
+              }}
+              disabled={selectedIds.size !== 1}
+              className={`p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10 ${
+                selectedIds.size === 1 ? "" : "opacity-40"
+              }`}
+              style={{ width: 40 }}
+            >
+              <Pencil className="text-gray-400" />
+            </button>
+
+            {/* Delete */}
+            <button
+              onMouseEnter={(e) => {
+                const overlay = document.getElementById("m-hover-bg");
+                if (overlay) {
+                  overlay.style.backgroundColor = "rgba(255,0,0,0.15)";
+                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                }
+              }}
+              onMouseLeave={() => {
+                const overlay = document.getElementById("m-hover-bg");
+                if (overlay) overlay.style.backgroundColor = "transparent";
+              }}
+              onClick={() => {}}
+              disabled={selectedIds.size === 0}
+              className={`p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10 ${
+                selectedIds.size === 0 ? "opacity-40" : ""
+              }`}
+              style={{ width: 40 }}
+            >
+              <Trash className="text-gray-400" />
+            </button>
+          </div>
+
+          {/* FILTER / SORT group — same design as desktop */}
+          <div
+            className="flex items-center relative rounded-2xl overflow-hidden"
+            style={{ backgroundColor: "#1a1d20" }}
+          >
+            <div
+              id="m-hover-bg-2"
+              className="absolute inset-0 pointer-events-none transition-all duration-200 rounded-2xl"
+              style={{
+                backgroundColor: "transparent",
+                backdropFilter: "blur(6px)",
+              }}
+            />
+
+            {/* Filter */}
+            <button
+              onMouseEnter={(e) => {
+                const overlay = document.getElementById("m-hover-bg-2");
+                if (overlay) {
+                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                }
+              }}
+              onMouseLeave={() => {
+                const overlay = document.getElementById("m-hover-bg-2");
+                if (overlay) overlay.style.backgroundColor = "transparent";
+              }}
+              onClick={() => setIsFilterOpen((p) => !p)}
+              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+              style={{ width: 40 }}
+            >
+              <Filter className="text-gray-400" />
+            </button>
+
+            {/* Sort */}
+            <button
+              onMouseEnter={(e) => {
+                const overlay = document.getElementById("m-hover-bg-2");
+                if (overlay) {
+                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
+                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
+                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
+                }
+              }}
+              onMouseLeave={() => {
+                const overlay = document.getElementById("m-hover-bg-2");
+                if (overlay) overlay.style.backgroundColor = "transparent";
+              }}
+              onClick={() => {}}
+              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
+              style={{ width: 40 }}
+            >
+              <ArrowUpDown className="text-gray-400" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ---------- Модальное окно создания ---------- */}

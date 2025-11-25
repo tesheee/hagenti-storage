@@ -71,3 +71,18 @@ body {
   stroke-dasharray: 70.5096664428711 9999999;
   stroke-dashoffset: -262.2723388671875;
 }
+
+.opacity_1 {
+  opacity: 1;
+  visibility: visible;
+}
+
+.opacity_0 {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.popup::before{
+    
+}

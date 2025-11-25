@@ -86,7 +86,7 @@ export default function MobileMenu({
     <>
       {/* Mobile controls - visible only on mobile */}
       <div
-        className="lg:hidden fixed top-4 right-4 z-40 flex gap-2 p-1.5 duration-200 rounded-lg shadow-lg"
+        className="lg:hidden fixed top-6 right-4 z-60 flex gap-2 p-1.5 duration-200 rounded-lg shadow-lg"
         style={{
           backgroundColor: "#1a1d20",
           border: "1px solid #2d3237",
@@ -94,7 +94,7 @@ export default function MobileMenu({
       >
         {/* Create button */}
 
-        {actions?.map((action, i) => (
+        {/* {actions?.map((action, i) => (
           <button
             onClick={action.onClick}
             key={i}
@@ -111,10 +111,10 @@ export default function MobileMenu({
           >
             <action.icon className="w-4 h-4 text-gray-300" />
           </button>
-        ))}
+        ))} */}
 
         {/* Divider */}
-        <div className="w-px bg-[#2d3237]"></div>
+        {/* <div className="w-px bg-[#2d3237]"></div> */}
 
         {/* Menu button */}
         <button
@@ -139,7 +139,7 @@ export default function MobileMenu({
 
       {/* Overlay with animation */}
       <div
-        className={`lg:hidden fixed inset-0 bg-black z-30 transition-all duration-300 ${
+        className={`lg:hidden fixed inset-0 bg-black z-55 transition-all duration-300 ${
           isMobileOpen
             ? "opacity-80 backdrop-blur-sm pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -153,7 +153,7 @@ export default function MobileMenu({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         className={`
-          lg:hidden fixed inset-y-0 right-0 z-40
+          lg:hidden fixed inset-y-0 right-0 z-60
           w-80 max-w-[85vw]
           transition-all duration-300 ease-out
           ${isMobileOpen ? "translate-x-0" : "translate-x-full"}

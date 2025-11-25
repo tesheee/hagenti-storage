@@ -1,5 +1,3 @@
-// Updated EditCartridgeModal with full fields like AddCartridgeModal
-
 "use client";
 
 import { useState } from "react";

@@ -1,4 +1,3 @@
-// src/hooks/useRegisterPageActions.ts
 import { useEffect } from "react";
 import { usePageActions } from "@/shared/components/layout/PageActionsContext";
 import { LucideIcon } from "lucide-react";
