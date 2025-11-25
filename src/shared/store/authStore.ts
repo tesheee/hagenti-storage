@@ -68,13 +68,13 @@ export const useAuthStore = create<AuthState>()(
 
       refresh: async () => {
         try {
-          //   const res = await axios.post(
-          //     "https://hagenti-storage-7sez.vercel.app/api/auth/refresh"
-          //   );
-
           const res = await axios.post(
-            "http://localhost:3000/api/auth/refresh"
+            "https://hagenti-storage-7sez.vercel.app/api/auth/refresh"
           );
+
+          //   const res = await axios.post(
+          //     "http://localhost:3000/api/auth/refresh"
+          //   );
 
           const data = res.data;
 
