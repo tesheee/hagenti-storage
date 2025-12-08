@@ -32,7 +32,7 @@ export default function OrgSpacesPage({ params }) {
       {org.address && <p className="text-gray-400 ml-9 mb-6">{org.address}</p>}
 
       {/* GRID */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {/* <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {org.rooms.map((room) => (
           <RoomCard
             key={room.id}
@@ -40,7 +40,7 @@ export default function OrgSpacesPage({ params }) {
             onClick={() => setSelectedRoom(room)}
           />
         ))}
-      </div>
+      </div> */}
 
       {selectedRoom && (
         <MapModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />
