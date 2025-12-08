@@ -8,7 +8,6 @@ import {
   Plus,
   Trash,
   Pencil,
-  ArrowUpDown,
 } from "lucide-react";
 import { Cartridge } from "@/shared/types/product";
 import { EditCartridgeModal } from "./EditCartridgeModal";
@@ -497,7 +496,7 @@ export default function CartridgeTable({
       </div>
 
       {/* Mobile Cards */}
-      <div className="lg:hidden space-y-3 pb-14">
+      <div className="lg:hidden space-y-3 pb-20">
         {filteredCartridges.map((cartridge, key) => {
           const isSelected = selectedIds.has(cartridge._id);
           return (
