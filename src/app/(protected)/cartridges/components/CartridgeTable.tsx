@@ -14,6 +14,7 @@ import { Cartridge } from "@/shared/types/product";
 import { EditCartridgeModal } from "./EditCartridgeModal";
 import AddCartridgeModal, { CartridgeFormData } from "./AddCartridgeModal";
 import CheckboxWithAnimation from "@/shared/components/CheckboxWithAnimation";
+import MobileBottomBar from "./MobileBottomBar";
 
 // ---------- Типы ----------
 type CartridgeStatus =
@@ -312,55 +313,9 @@ export default function CartridgeTable({
               >
                 <Filter className="text-gray-400" />
               </button>
-              {/* ---------- GLOBAL FILTER MENU (mobile + desktop) ---------- */}
-              <div
-                className={`fixed inset-0 z-[9999] flex items-start justify-end top-14 p-4 ${
-                  isFilterOpen ? "pointer-events-auto" : "pointer-events-none"
-                }`}
-                onClick={() => setIsFilterOpen(false)}
-              >
-                <div
-                  className={`w-full max-w-sm rounded-xl overflow-hidden border shadow-2xl
-      transition-all duration-300 ease-out
-      ${
-        isFilterOpen
-          ? "scale-100 opacity-100 clip-path-inset-0"
-          : "scale-0 opacity-0 clip-path-circle-0"
-      }`}
-                  style={{
-                    backgroundColor: "#1a1d20",
-                    borderColor: "#2d3237",
-                    clipPath: isFilterOpen
-                      ? "inset(0% 0% 0% 0%)"
-                      : "circle(0% at 90% 10%)",
-                    transformOrigin: "90% 10%",
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {statuses.map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => {
-                        setStatusFilter(status);
-                        setIsFilterOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b]"
-                      style={{
-                        color: statusFilter === status ? "#57d75b" : "#94a3b8",
-                        backgroundColor:
-                          statusFilter === status
-                            ? "rgba(87, 215, 91, 0.1)"
-                            : "transparent",
-                      }}
-                    >
-                      {statusLabels[status]}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Sort */}
-              <button
+              {/* <button
                 onMouseEnter={(e) => {
                   const overlay = document.getElementById("hover-bg-2");
                   if (overlay) {
@@ -378,45 +333,7 @@ export default function CartridgeTable({
                 style={{ width: 40 }}
               >
                 <ArrowUpDown className="text-gray-400" />
-              </button>
-              {/* Sort popup */}
-              <div
-                className="fixed inset-0 z-[9999] pointer-events-none"
-                onClick={() => setIsSortOpen(false)}
-              >
-                <div
-                  className={`absolute top-18 right-4 w-full max-w-sm rounded-xl overflow-hidden border shadow-2xl pointer-events-auto
-        transition-all duration-400 ease-out
-        ${isSortOpen ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
-                  style={{
-                    backgroundColor: "#1a1d20",
-                    borderColor: "#2d3237",
-                    clipPath: isSortOpen
-                      ? "inset(0% 0% 0% 0%)"
-                      : "circle(0% at calc(100% - 10px) 20px)", // чуть левее — где кнопка сортировки
-                    transformOrigin: "calc(100% - 10px) 20px",
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {[
-                    "По дате добавления ↑",
-                    "По дате добавления ↓",
-                    "По модели А→Я",
-                    "По модели Я→А",
-                  ].map((order) => (
-                    <button
-                      key={order}
-                      onClick={() => {
-                        // тут будет твоя логика сортировки
-                        setIsSortOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b] text-slate-300"
-                    >
-                      {order}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              </button> */}
             </div>
           </div>
         </div>
@@ -425,7 +342,7 @@ export default function CartridgeTable({
       {/* Search and Filters */}
       {isSearchOpen && (
         <div
-          className="rounded-lg p-4 mb-6 space-y-4 border"
+          className="hidden lg:rounded-lg p-4 mb-6 space-y-4 border"
           style={{ backgroundColor: "#1a1d20", borderColor: "#2d3237" }}
         >
           {/* Search */}
@@ -688,171 +605,84 @@ export default function CartridgeTable({
       </div>
 
       {/* ---------- Mobile Bottom Action Bar (Desktop-style) ---------- */}
-      <div
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pb-3 px-4"
-        style={{
-          backgroundColor: "rgba(33,37,41,0.95)",
-          backdropFilter: "blur(2px)",
-        }}
-      >
-        <div className="flex items-center justify-between mt-3">
-          {/* Search */}
-          <button
-            onClick={() => setIsSearchOpen((p) => !p)}
-            className="p-2.5 h-10 transition-all duration-200 hover:scale-[1.07] active:scale-95 flex items-center justify-center rounded-xl"
-            style={{ width: 40, backgroundColor: "#1a1d20" }}
-          >
-            <Search className="text-gray-400" />
-          </button>
+      <MobileBottomBar
+        setIsFilterOpen={setIsFilterOpen}
+        setIsCreateOpen={setIsCreateOpen}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
 
-          {/* CRUD group (same design as desktop) */}
+      {/* ====================== ГЛОБАЛЬНЫЕ ПОПАПЫ (фильтр + сортировка) ====================== */}
+      {isFilterOpen && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-start justify-center p-4"
+          onClick={() => setIsFilterOpen(false)}
+          style={{
+            top: window.innerWidth >= 1024 ? "5rem" : "21.25rem", // lg:top-18 ~ 4.5rem, top-85 ~ 21.25rem
+            left: window.innerWidth >= 1024 ? "61rem" : "0rem",
+          }}
+        >
           <div
-            className="flex items-center relative rounded-2xl overflow-hidden"
-            style={{ backgroundColor: "#1a1d20" }}
+            className="w-full rounded-xl overflow-hidden border shadow-2xl bg-[#1a1d20] border-[#2d3237] sm:w-96"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
-              id="m-hover-bg"
-              className="absolute inset-0 pointer-events-none transition-all duration-200 rounded-2xl"
-              style={{
-                backgroundColor: "transparent",
-                backdropFilter: "blur(6px)",
-              }}
-            />
-
-            {/* Add */}
-            <button
-              onMouseEnter={(e) => {
-                const overlay = document.getElementById("m-hover-bg");
-                if (overlay) {
-                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
-                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
-                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
-                }
-              }}
-              onMouseLeave={() => {
-                const overlay = document.getElementById("m-hover-bg");
-                if (overlay) overlay.style.backgroundColor = "transparent";
-              }}
-              onClick={() => setIsCreateOpen(true)}
-              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
-              style={{ width: 40 }}
-            >
-              <Plus className="text-gray-400" />
-            </button>
-
-            {/* Edit */}
-            <button
-              onMouseEnter={(e) => {
-                const overlay = document.getElementById("m-hover-bg");
-                if (overlay) {
-                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
-                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
-                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
-                }
-              }}
-              onMouseLeave={() => {
-                const overlay = document.getElementById("m-hover-bg");
-                if (overlay) overlay.style.backgroundColor = "transparent";
-              }}
-              onClick={() => {
-                if (selectedIds.size === 1) {
-                  const id = [...selectedIds][0];
-                  const c = cartridges.find((c) => c._id === id);
-                  if (c) openModal(c);
-                }
-              }}
-              disabled={selectedIds.size !== 1}
-              className={`p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10 ${
-                selectedIds.size === 1 ? "" : "opacity-40"
-              }`}
-              style={{ width: 40 }}
-            >
-              <Pencil className="text-gray-400" />
-            </button>
-
-            {/* Delete */}
-            <button
-              onMouseEnter={(e) => {
-                const overlay = document.getElementById("m-hover-bg");
-                if (overlay) {
-                  overlay.style.backgroundColor = "rgba(255,0,0,0.15)";
-                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
-                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
-                }
-              }}
-              onMouseLeave={() => {
-                const overlay = document.getElementById("m-hover-bg");
-                if (overlay) overlay.style.backgroundColor = "transparent";
-              }}
-              onClick={() => {}}
-              disabled={selectedIds.size === 0}
-              className={`p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10 ${
-                selectedIds.size === 0 ? "opacity-40" : ""
-              }`}
-              style={{ width: 40 }}
-            >
-              <Trash className="text-gray-400" />
-            </button>
-          </div>
-
-          {/* FILTER / SORT group — same design as desktop */}
-          <div
-            className="flex items-center relative rounded-2xl overflow-hidden"
-            style={{ backgroundColor: "#1a1d20" }}
-          >
-            <div
-              id="m-hover-bg-2"
-              className="absolute inset-0 pointer-events-none transition-all duration-200 rounded-2xl"
-              style={{
-                backgroundColor: "transparent",
-                backdropFilter: "blur(6px)",
-              }}
-            />
-
-            {/* Filter */}
-            <button
-              onMouseEnter={(e) => {
-                const overlay = document.getElementById("m-hover-bg-2");
-                if (overlay) {
-                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
-                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
-                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
-                }
-              }}
-              onMouseLeave={() => {
-                const overlay = document.getElementById("m-hover-bg-2");
-                if (overlay) overlay.style.backgroundColor = "transparent";
-              }}
-              onClick={() => setIsFilterOpen((p) => !p)}
-              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
-              style={{ width: 40 }}
-            >
-              <Filter className="text-gray-400" />
-            </button>
-
-            {/* Sort */}
-            <button
-              onMouseEnter={(e) => {
-                const overlay = document.getElementById("m-hover-bg-2");
-                if (overlay) {
-                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
-                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
-                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
-                }
-              }}
-              onMouseLeave={() => {
-                const overlay = document.getElementById("m-hover-bg-2");
-                if (overlay) overlay.style.backgroundColor = "transparent";
-              }}
-              onClick={() => {}}
-              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
-              style={{ width: 40 }}
-            >
-              <ArrowUpDown className="text-gray-400" />
-            </button>
+            {statuses.map((status) => (
+              <button
+                key={status}
+                onClick={() => {
+                  setStatusFilter(status);
+                  setIsFilterOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b]"
+                style={{
+                  color: statusFilter === status ? "#57d75b" : "#94a3b8",
+                  backgroundColor:
+                    statusFilter === status
+                      ? "rgba(87, 215, 91, 0.1)"
+                      : "transparent",
+                }}
+              >
+                {statusLabels[status]}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Сортировка — тоже глобальная */}
+      {/* {isSortOpen && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-start justify-center p-4"
+          onClick={() => setIsFilterOpen(false)}
+          style={{
+            top: window.innerWidth >= 1024 ? "5rem" : "24.25rem", // lg:top-18 ~ 4.5rem, top-85 ~ 21.25rem
+            left: window.innerWidth >= 1024 ? "61rem" : "2rem",
+          }}
+        >
+          <div
+            className="absolute top-18 right-4 w-full max-w-sm rounded-xl overflow-hidden border shadow-2xl bg-[#1a1d20] border-[#2d3237]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {[
+              "По дате добавления ↑",
+              "По дате добавления ↓",
+              "По модели А→Я",
+              "По модели Я→А",
+            ].map((order) => (
+              <button
+                key={order}
+                onClick={() => {
+                  // твоя логика сортировки
+                  setIsSortOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 transition-all hover:bg-[#24272b] text-slate-300"
+              >
+                {order}
+              </button>
+            ))}
+          </div>
+        </div>
+      )} */}
 
       {/* ---------- Модальное окно создания ---------- */}
       {isCreateOpen && (

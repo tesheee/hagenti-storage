@@ -59,7 +59,7 @@ const Navigation = () => {
       id: "network-map",
       label: "Карта сети",
       icon: Network,
-      url: "network-map",
+      url: "network-maps",
     },
     { id: "reports", label: "Отчеты", icon: BarChart, url: "reports" },
     { id: "settings", label: "Настройки", icon: Settings, url: "settings" },

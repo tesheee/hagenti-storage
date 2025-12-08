@@ -10,8 +10,8 @@ const processQueue = (token: string | null) => {
 };
 
 export const api = axios.create({
-  baseURL: "https://hagenti-storage-7sez.vercel.app/api", // твой базовый URL
-  //baseURL: "http://localhost:3000/api",
+  //baseURL: "https://hagenti-storage-7sez.vercel.app/api", // твой базовый URL
+  baseURL: "http://localhost:3000/api",
   withCredentials: true, // обязательно! чтобы refreshToken отправлялся в куках
 });
 
