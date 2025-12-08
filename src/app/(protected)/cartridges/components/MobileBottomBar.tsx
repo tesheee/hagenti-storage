@@ -15,7 +15,7 @@ interface MobileBottomBarProps {
   selectedIds?: Set<string>;
   openModal?: (cartridge: Cartridge) => void;
   setIsCreateOpen: (open: boolean) => void;
-  setIsFilterOpen: (open: boolean) => void;
+  setIsFilterOpen: React.Dispatch<React.SetStateAction<boolean>>;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
@@ -40,7 +40,7 @@ export default function MobileBottomBar({
       }}
     >
       <div className="relative mt-3" style={{ height: 40 }}>
-        {/* ---------- ICON BUTTONS ---------- */}
+        {/* ICON BUTTONS */}
         <div
           className={`absolute inset-0 flex items-center justify-between transition-all duration-500 ease-out ${
             isSearchOpen
@@ -105,7 +105,7 @@ export default function MobileBottomBar({
                 if (overlay) overlay.style.backgroundColor = "transparent";
               }}
               onClick={() => {}}
-              disabled={true}
+              disabled
               className={`p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10 ${
                 selectedIds.size === 1 ? "" : "opacity-40"
               }`}
@@ -128,15 +128,15 @@ export default function MobileBottomBar({
                 if (overlay) overlay.style.backgroundColor = "transparent";
               }}
               onClick={() => {
-                if (selectedIds.size === 1) {
+                if (selectedIds.size === 1 && openModal) {
                   const id = [...selectedIds][0];
-                  const c = cartridges.find((c) => c._id === id);
+                  const c = cartridges.find((c) => c._id?.toString() === id);
                   if (c) openModal(c);
                 }
               }}
-              disabled={selectedIds.size !== 1}
+              disabled={selectedIds.size !== 1 || !openModal}
               className={`p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10 ${
-                selectedIds.size === 1 ? "" : "opacity-40"
+                selectedIds.size === 1 && openModal ? "" : "opacity-40"
               }`}
               style={{ width: 40 }}
             >
@@ -167,7 +167,7 @@ export default function MobileBottomBar({
             </button>
           </div>
 
-          {/* FILTER / SORT group */}
+          {/* FILTER group */}
           <div
             className="flex items-center relative rounded-2xl overflow-hidden"
             style={{ backgroundColor: "#1a1d20" }}
@@ -194,36 +194,16 @@ export default function MobileBottomBar({
                 const overlay = document.getElementById("m-hover-bg-2");
                 if (overlay) overlay.style.backgroundColor = "transparent";
               }}
-              onClick={() => setIsFilterOpen((p) => !p)}
+              onClick={() => setIsFilterOpen((prev) => !prev)}
               className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
               style={{ width: 40 }}
             >
               <Filter className="text-gray-400" />
             </button>
-
-            {/* <button
-              onMouseEnter={(e) => {
-                const overlay = document.getElementById("m-hover-bg-2");
-                if (overlay) {
-                  overlay.style.backgroundColor = "rgba(87,215,91,0.15)";
-                  overlay.style.left = `${e.currentTarget.offsetLeft}px`;
-                  overlay.style.width = `${e.currentTarget.offsetWidth}px`;
-                }
-              }}
-              onMouseLeave={() => {
-                const overlay = document.getElementById("m-hover-bg-2");
-                if (overlay) overlay.style.backgroundColor = "transparent";
-              }}
-              onClick={() => setIsSortOpen((p) => !p)}
-              className="p-2.5 h-10 transition-all duration-200 flex items-center justify-center relative z-10"
-              style={{ width: 40 }}
-            >
-              <ArrowUpDown className="text-gray-400" />
-            </button> */}
           </div>
         </div>
 
-        {/* ---------- SEARCH INPUT ---------- */}
+        {/* SEARCH INPUT */}
         <div
           className={`absolute inset-0 flex items-center gap-2 transition-all duration-500 ease-out ${
             isSearchOpen
