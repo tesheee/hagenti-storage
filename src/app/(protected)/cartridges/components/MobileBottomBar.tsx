@@ -14,7 +14,7 @@ interface MobileBottomBarProps {
   cartridges?: Cartridge[];
   selectedIds?: Set<string>;
   openModal?: (cartridge: Cartridge) => void;
-  setIsCreateOpen?: (open: boolean) => void;
+  setIsCreateOpen: (open: boolean) => void;
   setIsFilterOpen: (open: boolean) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
